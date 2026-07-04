@@ -98,54 +98,61 @@
             </button>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    async function loadProfilePage() {
+        const profile = await getUserProfile();
+        if (profile) {
+            document.getElementById('profile-name').innerText = profile.full_name;
+            document.getElementById('profile-uid').innerText = "UID: " + profile.id.substring(0,8);
+        }
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
-    <script>
-        // تحميل بيانات المستخدم وعرضها
-        async function loadProfileData() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    window.location.href = "signin.html";
-                    return;
-                }
-
-                const profile = await getUserProfile();
-                if (profile) {
-                    document.getElementById('profile-username').innerText = profile.username;
-                    document.getElementById('profile-email').innerText = user.email;
-                    document.getElementById('profile-id').innerText = profile.id;
-                    
-                    // تحسين شكل تاريخ الانضمام
-                    const joinDate = new Date(profile.created_at).toLocaleDateString('ar-EG');
-                    document.getElementById('profile-joined').innerText = joinDate;
-                }
-            } catch (error) {
-                console.error(error.message);
-            }
+    document.getElementById('kyc-form')?.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('kyc-submit-btn');
+        const fileInput = document.getElementById('kyc-file');
+        
+        if (!fileInput || fileInput.files.length === 0) {
+            alert("يرجى اختيار ملف الهوية أو جواز السفر أولاً");
+            return;
         }
 
-        // دالة محاكاة التوثيق (يمكن لاحقاً ربطها برفع ملفات حقيقية لـ Supabase Storage)
-        function startKYC() {
-            alert("ميزة رفع الوثائق وتأكيد الهوية قيد المراجعة الفنية الآن، سيتم تفعيل ميزة الفحص الضوئي قريباً!");
-            
-            // تغيير واجهة الحالة لتبدو معلقة للتجربة البصرية
-            document.getElementById('kyc-status-text').innerText = "قيد المراجعة (معلق)";
-            document.getElementById('kyc-status-text').className = "text-xs font-black text-orange-500 mt-1 block";
-            document.getElementById('kyc-status-icon').className = "w-9 h-9 bg-orange-50 text-orange-50 rounded-full flex items-center justify-center text-sm text-orange-500";
-            document.getElementById('kyc-btn').disabled = true;
-            document.getElementById('kyc-btn').innerText = "تم إرسال الطلب بنجاح";
-            document.getElementById('kyc-btn').className = "w-full bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-xs mt-4 cursor-not-allowed";
-        }
+        btn.disabled = true;
+        btn.innerText = 'جاري رفع الملف وحفظه بأمان...';
 
-        // دالة تسجيل الخروج
-        async function logout() {
-            await supabase.auth.signOut();
-            window.location.href = "signin.html";
-        }
+        try {
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
+            const file = fileInput.files[0];
+            const fileExt = file.name.split('.').pop();
+            const filePath = `${user.id}/kyc_${Date.now()}.${fileExt}`;
 
-        loadProfileData();
-    </script>
+            // رفع الملف الفعلي في الحاوية التخزينية المخصصة
+            const { error: uploadError } = await window.supabaseClient.storage
+                .from('kyc-documents')
+                .upload(filePath, file);
+
+            if (uploadError) throw uploadError;
+
+            // تحديث حالة الحساب الشخصي لـ قيد المراجعة وتخزين رابط الوثيقة
+            const { error: updateError } = await window.supabaseClient
+                .from('profiles')
+                .update({ kyc_status: 'pending', kyc_document_url: filePath })
+                .eq('id', user.id);
+
+            if (updateError) throw updateError;
+
+            alert("تم رفع وثائق الهوية بنجاح، ملفك الآن قيد المراجعة الأمنية التلقائية.");
+            window.location.reload();
+        } catch (err) {
+            alert("خطأ أثناء معالجة الرفع: " + err.message);
+            btn.disabled = false;
+            btn.innerText = 'إرسال التوثيق';
+        }
+    });
+
+    window.addEventListener('DOMContentLoaded', loadProfilePage);
+</script>
 </body>
 </html>
