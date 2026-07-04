@@ -98,117 +98,47 @@
         </div>
 
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    document.getElementById('withdraw-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('withdraw-btn');
+        const originalText = btn.innerText;
+        const walletAddress = document.getElementById('wallet-address').value;
+        const amount = parseFloat(document.getElementById('withdraw-amount').value);
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
-    <script>
-        let currentBalance = 0.00;
-        let currentVipLevel = 'GOLD 0';
-        let allowedMinimumWithdraw = 10.00; // القيمة الافتراضية للخطط البسيطة
-
-        async function initWithdrawPage() {
-            try {
-                const profile = await getUserProfile();
-                if (!profile) return;
-
-                currentBalance = profile.balance;
-                currentVipLevel = profile.vip_level || 'GOLD 0';
-
-                document.getElementById('user-balance').innerText = currentBalance.toFixed(2);
-                document.getElementById('user-vip-tier').innerText = currentVipLevel;
-
-                // تطبيق لوجيك الشروط الخاص بالحد الأدنى حسب الباقات الحالية
-                if (currentVipLevel === 'GOLD 10' || currentVipLevel === 'GOLD 20' || currentVipLevel === 'GOLD 50' || currentVipLevel === 'GOLD 0') {
-                    allowedMinimumWithdraw = 10.00;
-                } else {
-                    // استخراج القيمة الرقمية للباقة لحساب الـ 10% منها للخطط الأعلى (100, 200, 500, 1000, 1500)
-                    const planValue = parseFloat(currentVipLevel.replace(/[^0-9]/g, ''));
-                    if (!isNaN(planValue)) {
-                        allowedMinimumWithdraw = planValue * 0.10;
-                    }
-                }
-
-                document.getElementById('calculated-min').innerText = `الحد الأدنى لك: $${allowedMinimumWithdraw.toFixed(2)}`;
-
-            } catch (error) {
-                console.error(error.message);
-            }
+        // التحقق من صحة عنوان المحفظة
+        if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+            alert("عنوان المحفظة غير صحيح! يجب أن يبدأ بـ 0x ويتكون من 40 خانة.");
+            return;
         }
 
-        // دالة ديناميكية لحساب الخصم الـ 5% والصافي فورا أمام عين العميل
-        function calculateNetPayout() {
-            const amountInput = parseFloat(document.getElementById('withdraw-amount').value);
-            if (isNaN(amountInput) || amountInput <= 0) {
-                document.getElementById('fee-amount').innerText = "$0.00";
-                document.getElementById('net-payout').innerText = "$0.00";
-                return;
+        btn.disabled = true;
+        btn.innerText = 'جاري المعالجة الأمنية...';
+
+        try {
+            // استدعاء دالة الخادم الآمنة (يجب أن تكون قد أنشأتها في SQL كما اتفقنا)
+            const { data: success, error } = await window.supabaseClient.rpc('process_withdrawal', {
+                requested_amount: amount
+            });
+
+            if (error) throw error;
+
+            if (success) {
+                alert("تم تقديم طلب السحب بنجاح وخصم الرصيد.");
+                window.location.href = "dashboard.html";
+            } else {
+                alert("فشل السحب: الرصيد غير كافٍ أو أنك لم تصل للحد الأدنى.");
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
-
-            const fee = amountInput * 0.05;
-            const net = amountInput - fee;
-
-            document.getElementById('fee-amount').innerText = `$${fee.toFixed(2)}`;
-            document.getElementById('net-payout').innerText = `$${net.toFixed(2)}`;
+        } catch (err) {
+            alert("خطأ الخادم: " + err.message);
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
-
-        // معالجة وحوكمة الشروط الصارمة عند ضغط تقديم طلب السحب
-        document.getElementById('withdrawal-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const withdrawAmount = parseFloat(document.getElementById('withdraw-amount').value);
-
-            // 1. التحقق من كفاية الرصيد الكلي في الحساب
-            if (withdrawAmount > currentBalance) {
-                alert(`عذراً! رصيدك المتاح الحالي ($${currentBalance.toFixed(2)}) أقل من المبلغ المطلوب سحبه.`);
-                return;
-            }
-
-            // 2. التحقق من شرط الحد الأدنى التابع لنوع الباقة المتفق عليها
-            if (withdrawAmount < allowedMinimumWithdraw) {
-                alert(`خطأ في شروط النظام: الحد الأدنى المسموح به للسحب لفئة باقتك الحالية (${currentVipLevel}) هو $${allowedMinimumWithdraw.toFixed(2)} USDT.`);
-                return;
-            }
-
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-
-                // 3. التحقق من دورية السحب (شرط عدم تقديم طلب أحدث من 3 أيام)
-                const threeDaysAgo = new Date();
-                threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-
-                const { data: recentTxs, error: txError } = await supabase
-                    .from('transactions')
-                    .select('created_at')
-                    .eq('user_id', user.id)
-                    .eq('type', 'withdrawal')
-                    .gt('created_at', threeDaysAgo.toISOString());
-
-                // إذا وجد عمليات سحب سالبة (خصم أرباح) في آخر 3 أيام يرفض المعاملة فوراً
-                if (!txError && recentTxs && recentTxs.length > 0) {
-                    alert("قوانين الأمان الصارمة: تم اكتشاف طلب سحب نشط أو مكتمل لك خلال الـ 3 أيام الماضية. يرجى الانتظار والمحاولة لاحقاً بعد انتهاء دورة الـ 3 أيام.");
-                    return;
-                }
-
-                // 4. تنفيذ الخصم المالي الفوري وتحديث الجدول المالي ووضع السحب قيد المراجعة الفنية (24-72 ساعة)
-                const updatedBalance = currentBalance - withdrawAmount;
-                await supabase.from('profiles').update({ balance: updatedBalance }).eq('id', user.id);
-
-                await supabase.from('transactions').insert([{
-                    user_id: user.id,
-                    amount: -withdrawAmount,
-                    type: 'withdrawal',
-                    description: `طلب سحب معلق (قيد التدقيق الفني خلال 24-72 ساعة)`
-                }]);
-
-                alert(`تم تقديم طلب السحب بنجاح بقيمة $${withdrawAmount.toFixed(2)} USDT!\n\nسيتم تدقيق ومراجعة طلبك وإرسال العوائد الصافية إلى محفظتك المحددة في غضون 24-72 ساعة.`);
-                window.location.href = "wallet.html";
-
-            } catch (err) {
-                alert("حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة لاحقاً.");
-                console.error(err.message);
-            }
-        });
-
-        initWithdrawPage();
-    </script>
+    });
+</script>
 </body>
 </html>
