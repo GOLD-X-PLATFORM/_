@@ -75,66 +75,55 @@
             </div>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    document.getElementById('signup-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('submit-btn'); // تأكد أن زر الإرسال يحمل هذا الـ id
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = 'جاري إنشاء حسابك...';
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = "https://uhhvdghvwmspxuuhpllc.supabase.co"; 
-        const SUPABASE_ANON_KEY = "sb_publishable_zU1iBaERUa7KN71PBdbPdA_bRbzBdpm";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        // تأكد من مطابقة هذه الـ IDs مع حقول الإدخال في تصميمك
+        const fullname = document.getElementById('fullname').value;
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const refCode = document.getElementById('referral-code') ? document.getElementById('referral-code').value : '';
 
-        document.getElementById('signup-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            
-            const btn = document.getElementById('submit-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> جاري إنشاء حسابك...';
+        try {
+            const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
+            if (error) throw error;
 
-            const fullname = document.getElementById('fullname').value;
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-            const refCode = document.getElementById('referral-code').value;
+            if (data.user) {
+                const userRandomCode = Math.random().toString(36).substring(2, 10);
+                const currentDomain = window.location.origin + window.location.pathname.replace('signup.html', '');
+                const generatedLink = `${currentDomain}signup.html?ref=${userRandomCode}`;
 
-            try {
-                // 1. تسجيل الحساب الأساسي في Auth
-                const { data, error } = await supabase.auth.signUp({
-                    email: email,
-                    password: password,
-                });
+                const { error: profileError } = await window.supabaseClient
+                    .from('profiles')
+                    .insert([{
+                        id: data.user.id,
+                        full_name: fullname,
+                        balance: 0.00,
+                        vip_level: 'VIP 0', // تم توحيد التسمية هنا
+                        referred_by: refCode || null,
+                        my_referral_code: userRandomCode, // اسم العمود الصحيح
+                        referral_link: generatedLink
+                    }]);
 
-                if (error) throw error;
-
-                if (data.user) {
-                    const userRandomCode = Math.random().toString(36).substring(2, 10);
-                    const currentDomain = window.location.origin + window.location.pathname.replace('signup.html', 'signup.html');
-                    const generatedLink = `${currentDomain}?ref=${userRandomCode}`;
-
-                    // 2. إدخال السجل المالي الكامل للمستند لفتح واجهة الداشبورد فوراً
-                    const { error: profileError } = await supabase
-                        .from('profiles')
-                        .insert([{
-                            id: data.user.id,
-                            full_name: fullname,
-                            balance: 0.00,
-                            vip_level: 'VIP 0',
-                            referred_by: refCode || null,
-                            my_referral_code: userRandomCode,
-                            referral_link: generatedLink
-                        }]);
-
-                    if (profileError) throw profileError;
-
-                    alert("✅ تم إنشاء الحساب بنجاح! مرحباً بك في لوحة تحكم GOLD X.");
-                    window.location.href = "dashboard.html";
-                } else {
-                    throw new Error("لم يتم إرجاع بيانات المستخدم بشكل صحيح.");
-                }
-
-            } catch (err) {
-                alert("❌ حدث خطأ حاول مرة اخرى:\nالسبب: " + err.message);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-user-plus ml-1"></i> إنشاء الحساب وتفعيله';
+                if (profileError) throw profileError;
+                
+                alert("تم إنشاء الحساب بنجاح!");
+                window.location.href = "dashboard.html";
             }
-        });
-    </script>
+        } catch (err) {
+            alert("خطأ: " + err.message);
+            btn.disabled = false;
+            btn.innerText = originalText;
+        }
+    });
+</script>
+
 </body>
 </html>
