@@ -58,43 +58,44 @@
             </div>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    document.getElementById('signin-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('login-btn');
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = 'جاري التحقق...';
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        const SUPABASE_URL = "https://uhhvdghvwmspxuuhpllc.supabase.co"; 
-        const SUPABASE_ANON_KEY = "sb_publishable_zU1iBaERUa7KN71PBdbPdA_bRbzBdpm";
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
 
-        document.getElementById('signin-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const btn = document.getElementById('login-btn');
-            btn.disabled = true;
-            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> جاري التحقق...';
-
-            const email = document.getElementById('email').value;
-            const password = document.getElementById('password').value;
-
-            try {
-                const { data, error } = await supabase.auth.signInWithPassword({
-                    email: email,
-                    password: password,
-                });
-
-                if (error) throw error;
-                
-                alert("✅ تم تسجيل الدخول بنجاح! جاري الانتقال للوحة التحكم...");
-                window.location.href = "dashboard.html";
-
-            } catch (err) {
-                alert("❌ حدث خطأ حاول مرة اخرى:\nالسبب: " + err.message);
-                btn.disabled = false;
-                btn.innerHTML = '<i class="fas fa-sign-in-alt ml-1"></i> تسجيل الدخول';
-            }
-        });
-
-        function forgotPassword() {
-            alert("🔒 أمن وحماية الحسابات:\n\nلاستعادة كلمة المرور الخاصة بك، يرجى مراسلة الدعم الفني الرسمي للمنصة عبر تلغرام وتزويدهم ببريدك الإلكتروني المسجل لإعادة تعيينها فوراً.");
+        try {
+            const { data, error } = await window.supabaseClient.auth.signInWithPassword({ email, password });
+            if (error) throw error;
+            window.location.href = "dashboard.html";
+        } catch (err) {
+            alert("خطأ: " + err.message);
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
-    </script>
+    });
+
+    // دالة استرجاع كلمة المرور الحقيقية (اربطها بزر "نسيت كلمة المرور")
+    async function forgotPassword() {
+        const userEmail = prompt("أدخل بريدك الإلكتروني المسجل لإرسال رابط إعادة التعيين:");
+        if (userEmail) {
+            const { error } = await window.supabaseClient.auth.resetPasswordForEmail(userEmail, {
+                redirectTo: window.location.origin + '/reset-password.html',
+            });
+            if (error) {
+                alert("خطأ: " + error.message);
+            } else {
+                alert("تم إرسال رابط الاستعادة إلى بريدك الإلكتروني بنجاح.");
+            }
+        }
+    }
+</script>
 </body>
 </html>
