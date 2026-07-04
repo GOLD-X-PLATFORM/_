@@ -112,66 +112,56 @@
             </button>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    async function buildReferralTree() {
+        const profile = await getUserProfile();
+        if (!profile) return;
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
-    <script>
-        async function loadReferralTree() {
-            try {
-                const profile = await getUserProfile();
-                if (!profile) return;
-
-                // 1. عرض كود الإحالة للمستخدم وتجهيز زر النسخ
-                document.getElementById('my-code').innerText = profile.referral_code;
-                document.getElementById('copy-btn').addEventListener('click', () => {
-                    const inviteLink = window.location.origin + "/signup.html?ref=" + profile.referral_code;
-                    navigator.clipboard.writeText(inviteLink);
-                    alert("تم نسخ رابط الدعوة الشجري الخاص بك بنجاح!");
-                });
-
-                // 2. جلب المستوى الأول (المسجلين بكود المستخدم مباشرة)
-                const { data: level1, error: e1 } = await supabase
-                    .from('profiles')
-                    .select('id')
-                    .eq('referred_by', profile.id);
-                
-                if (e1) throw e1;
-                const l1Count = level1 ? level1.length : 0;
-                document.getElementById('lvl1-count').innerText = l1Count;
-
-                if (l1Count > 0) {
-                    const l1Ids = level1.map(u => u.id);
-
-                    // 3. جلب المستوى الثاني (المسجلين بواسطة أعضاء المستوى الأول)
-                    const { data: level2, error: e2 } = await supabase
-                        .from('profiles')
-                        .select('id')
-                        .in('referred_by', l1Ids);
-
-                    if (e2) throw e2;
-                    const l2Count = level2 ? level2.length : 0;
-                    document.getElementById('lvl2-count').innerText = l2Count;
-
-                    if (l2Count > 0) {
-                        const l2Ids = level2.map(u => u.id);
-
-                        // 4. جلب المستوى الثالث (المسجلين بواسطة أعضاء المستوى الثاني)
-                        const { data: level3, error: e3 } = await supabase
-                            .from('profiles')
-                            .select('id')
-                            .in('referred_by', l2Ids);
-
-                        if (e3) throw e3;
-                        document.getElementById('lvl3-count').innerText = level3 ? level3.length : 0;
-                    }
-                }
-
-            } catch (error) {
-                console.error("حدث خطأ أثناء بناء شبكة الفريق:", error.message);
-            }
+        // عرض كود ورابط الإحالة المباشر للمستخدم دون أخطاء الـ undefined
+        if(document.getElementById('my-referral-code')) {
+            document.getElementById('my-referral-code').innerText = profile.my_referral_code;
+        }
+        if(document.getElementById('referral-link')) {
+            document.getElementById('referral-link').value = profile.referral_link;
         }
 
-        loadReferralTree();
-    </script>
-</body>
+        try {
+            // المستوى الأول: جلب المستخدمين الذين يحملون الـ UUID الخاص بالمستخدم الحالي في خانة referred_by
+            const { data: lvl1, error: e1 } = await window.supabaseClient.from('profiles').select('id, full_name, created_at').eq('referred_by', profile.id);
+            if (e1) throw e1;
+            document.getElementById('lvl1-count').innerText = lvl1.length;
+
+            let lvl2Count = 0;
+            let lvl3Count = 0;
+
+            if (lvl1.length > 0) {
+                const lvl1Ids = lvl1.map(u => u.id);
+
+                // المستوى الثاني: جلب المستخدمين المحالين بواسطة أفراد المستوى الأول
+                const { data: lvl2, error: e2 } = await window.supabaseClient.from('profiles').select('id').in('referred_by', lvl1Ids);
+                if (!e2 && lvl2) {
+                    lvl2Count = lvl2.length;
+                    document.getElementById('lvl2-count').innerText = lvl2Count;
+
+                    if (lvl2.length > 0) {
+                        const lvl2Ids = lvl2.map(u => u.id);
+                        // المستوى الثالث: جلب المستخدمين المحالين بواسطة أفراد المستوى الثاني
+                        const { data: lvl3, error: e3 } = await window.supabaseClient.from('profiles').select('id').in('referred_by', lvl2Ids);
+                        if (!e3 && lvl3) {
+                            lvl3Count = lvl3.length;
+                            document.getElementById('lvl3-count').innerText = lvl3Count;
+                        }
+                    }
+                }
+            }
+        } catch (err) {
+            console.error("خطأ في معالجة شجرة الإحالات الهرمية:", err.message);
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', buildReferralTree);
+</script>
+ </body>
 </html>
