@@ -98,45 +98,68 @@
         </div>
 
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
-    document.getElementById('withdraw-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btn = document.getElementById('withdraw-btn');
-        const originalText = btn.innerText;
-        const walletAddress = document.getElementById('wallet-address').value;
-        const amount = parseFloat(document.getElementById('withdraw-amount').value);
-
-        // التحقق من صحة عنوان المحفظة
-        if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
-            alert("عنوان المحفظة غير صحيح! يجب أن يبدأ بـ 0x ويتكون من 40 خانة.");
-            return;
-        }
-
-        btn.disabled = true;
-        btn.innerText = 'جاري المعالجة الأمنية...';
-
-        try {
-            // استدعاء دالة الخادم الآمنة (يجب أن تكون قد أنشأتها في SQL كما اتفقنا)
-            const { data: success, error } = await window.supabaseClient.rpc('process_withdrawal', {
-                requested_amount: amount
-            });
-
-            if (error) throw error;
-
-            if (success) {
-                alert("تم تقديم طلب السحب بنجاح وخصم الرصيد.");
-                window.location.href = "dashboard.html";
-            } else {
-                alert("فشل السحب: الرصيد غير كافٍ أو أنك لم تصل للحد الأدنى.");
-                btn.disabled = false;
-                btn.innerText = originalText;
+    async function loadWithdrawPage() {
+        const profile = await getUserProfile();
+        if (profile) {
+            document.getElementById('user-balance').innerText = parseFloat(profile.balance).toFixed(2) + " USDT";
+            document.getElementById('user-vip-tier').innerText = profile.vip_level;
+            
+            // حساب الحد الأدنى بناءً على الرتبة تلقائياً
+            let minWithdraw = profile.vip_level === 'VIP 0' ? 50.00 : 10.00;
+            if(document.getElementById('calculated-min')) {
+                document.getElementById('calculated-min').innerText = minWithdraw + " USDT";
             }
-        } catch (err) {
-            alert("خطأ الخادم: " + err.message);
-            btn.disabled = false;
-            btn.innerText = originalText;
+        }
+    }
+
+    // إصلاح مشكلة المطابقة للـ IDs (تأمين الربط للفورم والزر والحقل)
+    document.addEventListener('DOMContentLoaded', () => {
+        loadWithdrawPage();
+
+        const form = document.getElementById('withdrawal-form') || document.getElementById('withdraw-form');
+        if (form) {
+            form.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                const btn = document.getElementById('withdraw-btn') || form.querySelector('button[type="submit"]');
+                const walletInput = document.getElementById('wallet-address') || form.querySelector('input[type="text"]');
+                const amountInput = document.getElementById('withdraw-amount') || form.querySelector('input[type="number"]');
+
+                const walletAddress = walletInput.value.trim();
+                const amount = parseFloat(amountInput.value);
+
+                if (!/^0x[a-fA-F0-9]{40}$/.test(walletAddress)) {
+                    alert("خطأ: عنوان المحفظة غير صالحة لشبكة التمويل المحددة (يجب تبدأ بـ 0x وتتكون من 40 خانة).");
+                    return;
+                }
+
+                btn.disabled = true;
+                const originalText = btn.innerText;
+                btn.innerText = 'جاري التحقق الآمن للعملية...';
+
+                try {
+                    const { data: success, error } = await window.supabaseClient.rpc('process_withdrawal', {
+                        requested_amount: amount
+                    });
+
+                    if (error) throw error;
+
+                    if (success) {
+                        alert("تم تقديم طلب السحب بنجاح للتنفيذ الفوري وتحويل المبالغ.");
+                        window.location.href = "dashboard.html";
+                    } else {
+                        alert("فشل الطلب: رصيدك الحالي أقل من المبلغ المطلوب أو لم تصل للحد الأدنى لرتبتك.");
+                        btn.disabled = false;
+                        btn.innerText = originalText;
+                    }
+                } catch (err) {
+                    alert("خطأ خادم: " + err.message);
+                    btn.disabled = false;
+                    btn.innerText = originalText;
+                }
+            });
         }
     });
 </script>
