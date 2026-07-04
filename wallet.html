@@ -134,104 +134,86 @@
             </button>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    async function loadWalletData() {
+        const profile = await getUserProfile();
+        if (profile) {
+            document.getElementById('user-balance').innerText = parseFloat(profile.balance).toFixed(2) + " USDT";
+            loadDepositHistory(profile.id);
+        }
+    }
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
-    <script>
-        // دالة التحكم التفاعلي لعرض وإخفاء كروت المحافظ بحسب اختيار العميل
-        function toggleNetworkView() {
-            const selectedNetwork = document.getElementById('network-selector').value;
-            const boxBep20 = document.getElementById('box-bep20');
-            const boxErc20 = document.getElementById('box-erc20');
+    // معالجة طلب الإيداع بأمان عبر مراجعة الإدارة (منع تزوير الأموال)
+    document.getElementById('deposit-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const btn = document.getElementById('deposit-btn');
+        btn.disabled = true;
 
-            if (selectedNetwork === 'bep20') {
-                boxBep20.classList.remove('hidden');
-                boxErc20.classList.add('hidden');
-            } else {
-                boxBep20.classList.add('hidden');
-                boxErc20.classList.remove('hidden');
-            }
+        const amount = parseFloat(document.getElementById('deposit-amount').value);
+        const txid = document.getElementById('txid-input').value.trim();
+
+        if (isNaN(amount) || amount <= 0) {
+            alert("يرجى إدخال مبلغ صحيح");
+            btn.disabled = false;
+            return;
+        }
+        if (txid.length < 10) {
+            alert("يرجى إدخال هاش معاملة (TxID) صحيح للتحقق");
+            btn.disabled = false;
+            return;
         }
 
-        function copyAddress(address) {
-            navigator.clipboard.writeText(address);
-            alert("تم نسخ معرّف العنوان بنجاح! تذكّر جيداً فحص ومطابقة نوع الشبكة المحددة لتفادي فقدان الأرصدة.");
-        }
-
-        async function initWalletPage() {
-            try {
-                const logContainer = document.getElementById('transactions-log');
-                const profile = await getUserProfile();
-                if (!profile) return;
-
-                document.getElementById('wallet-balance').innerText = profile.balance.toFixed(2);
-
-                const { data: txs, error } = await supabase
-                    .from('transactions')
-                    .select('*')
-                    .eq('user_id', profile.id)
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-                logContainer.innerHTML = "";
-
-                if (!txs || txs.length === 0) {
-                    logContainer.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">لا توجد حركات مالية مسجلة في حسابك حتى الآن.</div>`;
-                    return;
-                }
-
-                txs.forEach(tx => {
-                    let typeLabel = "عملية";
-                    let colorClass = "text-slate-600 bg-slate-50";
-                    let sign = tx.amount >= 0 ? "+" : "";
-
-                    if (tx.type === 'task_reward') { typeLabel = "ربح مهمة"; colorClass = "text-blue-600 bg-blue-50/50 border border-blue-100"; }
-                    else if (tx.type === 'referral_commission') { typeLabel = "ربح إحالة"; colorClass = "text-purple-600 bg-purple-50/50 border border-purple-100"; }
-                    else if (tx.type === 'deposit') { typeLabel = "إيداع محفظة"; colorClass = "text-emerald-600 bg-emerald-50 border border-emerald-100"; }
-                    else if (tx.type === 'withdrawal') { typeLabel = "سحب أرباح"; colorClass = "text-rose-600 bg-rose-50 border border-rose-100"; }
-
-                    const dateStr = new Date(tx.created_at).toLocaleDateString('ar-EG', {hour: '2-digit', minute:'2-digit'});
-
-                    const txItem = document.createElement('div');
-                    txItem.className = `p-3 rounded-xl flex justify-between items-center ${colorClass}`;
-                    txItem.innerHTML = `
-                        <div class="text-right">
-                            <span class="text-xs font-bold block">${tx.description || typeLabel}</span>
-                            <span class="text-[9px] text-slate-400 block mt-0.5">${dateStr}</span>
-                        </div>
-                        <div class="text-left font-black text-sm">${sign}$${tx.amount.toFixed(2)}</div>
-                    `;
-                    logContainer.appendChild(txItem);
-                });
-            } catch (error) { console.error(error.message); }
-        }
-
-        document.getElementById('deposit-verify-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const txHash = document.getElementById('tx-hash').value.trim();
-            const selectedNetwork = document.getElementById('network-selector').value.toUpperCase();
+        try {
+            const { data: { user } } = await window.supabaseClient.auth.getUser();
             
-            alert(`جاري فحص وتدقيق الـ TxID حياً عبر شبكة ${selectedNetwork}... انتظر ثوانٍ معدودة لمعالجة الإيداع رقمياً.`);
-            
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                const depositAmount = 50.00; // قيمة محاكاة حركية مؤقتة للاختبار
-                const profile = await getUserProfile();
-                
-                await supabase.from('profiles').update({ balance: profile.balance + depositAmount }).eq('id', user.id);
-                await supabase.from('transactions').insert([{
+            // إدراج المعاملة في جدول الـ deposits بحالة 'pending' بدلاً من إضافة رصيد فوري غير حقيقي
+            const { error } = await window.supabaseClient
+                .from('deposits')
+                .insert([{
                     user_id: user.id,
-                    amount: depositAmount,
-                    type: 'deposit',
-                    description: `إيداع تلقائي مؤكد عبر شبكة ${selectedNetwork} هاش: ${txHash.substring(0,8)}...`
+                    amount: amount,
+                    txid: txid,
+                    status: 'pending' // الإدارة تفحص السجل وتفعله يدوياً من لوحة التحكم
                 }]);
 
-                alert(`رائع جداً! تم التحقق بنجاح من بيانات المعاملة، وتغذية رصيد المحفظة بمبلغ $${depositAmount}.`);
-                window.location.reload();
-            } catch (err) { console.error(err.message); }
-        });
+            if (error) throw error;
 
-        initWalletPage();
-    </script>
+            alert("تم إرسال طلب الإيداع بنجاح. سيتم فحص الـ TxID يدويًا وإضافة الرصيد فور التأكيد المالي.");
+            window.location.reload();
+        } catch (err) {
+            alert("خطأ أثناء معالجة الطلب: " + err.message);
+            btn.disabled = false;
+        }
+    });
+
+    async function loadDepositHistory(userId) {
+        const { data, error } = await window.supabaseClient
+            .from('deposits')
+            .select('*')
+            .eq('user_id', userId)
+            .order('created_at', { ascending: false });
+
+        if (!error && data) {
+            const container = document.getElementById('history-container');
+            container.innerHTML = '';
+            data.forEach(item => {
+                let statusBadge = item.status === 'approved' ? '<span class="badge success">مكتمل</span>' : 
+                                  item.status === 'rejected' ? '<span class="badge danger">مرفوض</span>' : 
+                                                               '<span class="badge warning">قيد المراجعة</span>';
+                container.innerHTML += `
+                    <div class="history-item">
+                        <div><strong>${item.amount} USDT</strong></div>
+                        <div style="font-size:12px; color:gray;">TxID: ${item.txid}</div>
+                        <div>${statusBadge}</div>
+                    </div>
+                `;
+            });
+        }
+    }
+
+    window.addEventListener('DOMContentLoaded', loadWalletData);
+</script>
 </body>
 </html>
