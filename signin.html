@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - تسجيل الدخول</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4?v=2026"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .auth-header {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2.5rem;
+            border-bottom-right-radius: 2.5rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between pb-6">
+
+    <div class="auth-header text-white px-6 pt-10 pb-16 shadow-xl text-center relative">
+        <div class="max-w-md mx-auto">
+            <h1 class="text-2xl font-black tracking-wider text-amber-400">GOLD X</h1>
+            <p class="text-xs text-blue-200 mt-2">مرحباً بك مجدداً! قم بتسجيل الدخول لمتابعة أرباحك اليومية.</p>
+        </div>
+    </div>
+
+    <div class="px-4 -mt-10 max-w-md mx-auto w-full flex-grow my-auto">
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-100 text-right">
+            <form id="signin-form" class="space-y-4">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">البريد الإلكتروني</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-3 text-slate-400 text-xs"><i class="fas fa-envelope"></i></span>
+                        <input type="email" id="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95]" placeholder="name@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">كلمة المرور</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-3 text-slate-400 text-xs"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="password" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95]" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div class="text-left">
+                    <button type="button" onclick="forgotPassword()" class="text-[11px] text-blue-600 font-bold hover:underline cursor-pointer">نسيت كلمة المرور؟</button>
+                </div>
+
+                <button type="submit" id="login-btn" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md cursor-pointer transform active:scale-95">
+                    <i class="fas fa-sign-in-alt ml-1"></i> تسجيل الدخول
+                </button>
+            </form>
+
+            <div class="text-center mt-5 pt-4 border-t border-slate-100">
+                <p class="text-xs text-slate-400">ليس لديك حساب حتى الآن؟ <a href="signup.html?v=2026" class="text-blue-600 font-bold hover:underline">أنشئ حسابك هنا</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://uhhvdghvwmspxuuhpllc.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_zU1iBaERUa7KN71PBdbPdA_bRbzBdpm";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.getElementById('signin-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.getElementById('login-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> جاري التحقق...';
+
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+
+            try {
+                const { data, error } = await supabase.auth.signInWithPassword({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) throw error;
+                
+                alert("✅ تم تسجيل الدخول بنجاح! جاري الانتقال للوحة التحكم...");
+                window.location.href = "dashboard.html";
+
+            } catch (err) {
+                alert("❌ حدث خطأ حاول مرة اخرى:\nالسبب: " + err.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-sign-in-alt ml-1"></i> تسجيل الدخول';
+            }
+        });
+
+        function forgotPassword() {
+            alert("🔒 أمن وحماية الحسابات:\n\nلاستعادة كلمة المرور الخاصة بك، يرجى مراسلة الدعم الفني الرسمي للمنصة عبر تلغرام وتزويدهم ببريدك الإلكتروني المسجل لإعادة تعيينها فوراً.");
+        }
+    </script>
+</body>
+</html>

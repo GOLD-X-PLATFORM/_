@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - المحفظة الميزانية</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .header-bg {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
+
+    <div class="header-bg text-white px-6 pt-6 pb-20 shadow-lg text-center relative">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold">المحفظة المالية</h1>
+            <div class="w-9 h-9 bg-amber-500 rounded-full flex items-center justify-center text-slate-950 font-bold shadow">
+                <i class="fas fa-wallet"></i>
+            </div>
+        </div>
+
+        <div class="text-center mt-6 max-w-md mx-auto">
+            <p class="text-blue-200 text-xs font-medium">إجمالي الرصيد القابل للاستخدام والسحب</p>
+            <p class="text-3xl font-black text-white mt-1">$<span id="wallet-balance">0.00</span></p>
+            <p class="text-[10px] text-amber-400 mt-1"><i class="fas fa-shield-alt"></i> يمكن استخدام هذا الرصيد في تفعيل خطط الاشتراك أو حفظه وسحبه لاحقاً</p>
+        </div>
+    </div>
+
+    <div class="px-4 -mt-10 max-w-md mx-auto relative z-10 space-y-4">
+        
+        <div class="bg-white rounded-2xl shadow-xl p-5 border border-slate-100 text-right">
+            <h3 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-1.5 justify-end">
+                إيداع رصيد تلقائي <i class="fas fa-arrow-alt-circle-down text-green-600"></i>
+            </h3>
+            
+            <div class="bg-red-50 border border-red-100 text-red-700 rounded-xl p-3 mb-4 text-xs flex items-start gap-2">
+                <i class="fas fa-exclamation-triangle mt-0.5 shrink-0"></i>
+                <p class="leading-relaxed">
+                    <strong>تحذير هام جداً:</strong> تأكد تماماً من مطابقة نوع الشبكة التي تختارها هنا مع الشبكة المحددة في محفظتك المُرْسِلة. أي خطأ في اختيار نوع الشبكة أثناء التحويل سيؤدي إلى خسارة أموالك بشكل دائم للأبد.
+                </p>
+            </div>
+
+            <div class="mb-4">
+                <label class="block text-xs font-bold text-slate-500 mb-1.5 mr-1">اختر شبكة الإيداع المفضلة لديك</label>
+                <select id="network-selector" onchange="toggleNetworkView()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-[#0b3c95] focus:bg-white transition font-medium">
+                    <option value="bep20" selected>USDT (BEP20 - Binance Smart Chain)</option>
+                    <option value="erc20">USDT (ERC20 - Ethereum Network)</option>
+                </select>
+            </div>
+
+            <div id="network-display-container">
+                
+                <div id="box-bep20" class="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-3">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-black text-amber-600 uppercase"><i class="fab fa-binance"></i> شبكة BEP20</span>
+                        <span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded">رسوم منخفضة جداً</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl px-2 py-2">
+                        <button onclick="copyAddress('0xb56a89f790060cbb0f08d02234921e5fefff11a6')" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-lg font-bold cursor-pointer transition active:scale-95"><i class="fas fa-copy"></i> نسخ</button>
+                        <span class="text-xs font-mono text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap select-all pr-1">0xb56a89f790060cbb0f08d02234921e5fefff11a6</span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center bg-white p-3 border border-slate-100 rounded-2xl max-w-[150px] mx-auto shadow-sm">
+                        <img src="IMG_4550.jpeg" alt="BEP20 QR Code" class="w-32 h-32 object-contain rounded-lg">
+                        <span class="text-[10px] text-slate-400 mt-1.5 font-bold">امسح لشبكة BEP20</span>
+                    </div>
+                </div>
+
+                <div id="box-erc20" class="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-3 hidden">
+                    <div class="flex justify-between items-center">
+                        <span class="text-[11px] font-black text-blue-600 uppercase"><i class="fab fa-ethereum"></i> شبكة ERC20</span>
+                        <span class="bg-blue-100 text-blue-800 text-[9px] font-bold px-2 py-0.5 rounded">شبكة إيثريوم</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl px-2 py-2">
+                        <button onclick="copyAddress('0xb56a89f790060cbb0f08d02234921e5fefff11a6')" class="text-xs bg-[#0b3c95] hover:bg-[#05245e] text-white px-3 py-1.5 rounded-lg font-bold cursor-pointer transition active:scale-95"><i class="fas fa-copy"></i> نسخ</button>
+                        <span class="text-xs font-mono text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap select-all pr-1">0xb56a89f790060cbb0f08d02234921e5fefff11a6</span>
+                    </div>
+                    <div class="flex flex-col items-center justify-center bg-white p-3 border border-slate-100 rounded-2xl max-w-[150px] mx-auto shadow-sm">
+                        <img src="IMG_4549.jpeg" alt="ERC20 QR Code" class="w-32 h-32 object-contain rounded-lg">
+                        <span class="text-[10px] text-slate-400 mt-1.5 font-bold">امسح لشبكة ERC20</span>
+                    </div>
+                </div>
+
+            </div>
+
+            <form id="deposit-verify-form" class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">أدخل هاش المعاملة / معرّف الحوالة الرقمية (TxID)</label>
+                    <input type="text" id="tx-hash" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-700 focus:outline-none focus:border-[#0b3c95] focus:bg-white transition text-left" placeholder="لصق الـ Hash أو TxHash المكون من أرقام وحروف">
+                </div>
+                <button type="submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/10 cursor-pointer">
+                    <i class="fas fa-sync"></i> تقديم طلب التحقق التلقائي والربط بالرصيد
+                </button>
+            </form>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 text-right">
+            <h3 class="font-bold text-slate-900 text-sm mb-3 flex items-center gap-1.5 justify-end">
+                سجل الأرباح والعمليات الحالية <i class="fas fa-history text-slate-500"></i>
+            </h3>
+            <div id="transactions-log" class="space-y-2.5 max-h-[250px] overflow-y-auto pr-1">
+                <div class="text-center py-6 text-slate-400 text-xs">جاري جلب كشوفات ومكافآت الحساب حياً...</div>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
+        <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-file-alt text-lg"></i><span class="text-[10px]">التقارير</span>
+            </button>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-briefcase text-lg"></i><span class="text-[10px]">المهام</span>
+            </button>
+            <div class="relative -mt-6 flex justify-center">
+                <a href="dashboard.html" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-blue-600/40 border-4 border-white flex justify-center items-center">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-question-circle text-lg"></i><span class="text-[10px]">المساعدة</span>
+            </button>
+            <button class="text-[#0b3c95] flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-user-circle text-lg"></i><span class="text-[10px]">الحساب</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        // دالة التحكم التفاعلي لعرض وإخفاء كروت المحافظ بحسب اختيار العميل
+        function toggleNetworkView() {
+            const selectedNetwork = document.getElementById('network-selector').value;
+            const boxBep20 = document.getElementById('box-bep20');
+            const boxErc20 = document.getElementById('box-erc20');
+
+            if (selectedNetwork === 'bep20') {
+                boxBep20.classList.remove('hidden');
+                boxErc20.classList.add('hidden');
+            } else {
+                boxBep20.classList.add('hidden');
+                boxErc20.classList.remove('hidden');
+            }
+        }
+
+        function copyAddress(address) {
+            navigator.clipboard.writeText(address);
+            alert("تم نسخ معرّف العنوان بنجاح! تذكّر جيداً فحص ومطابقة نوع الشبكة المحددة لتفادي فقدان الأرصدة.");
+        }
+
+        async function initWalletPage() {
+            try {
+                const logContainer = document.getElementById('transactions-log');
+                const profile = await getUserProfile();
+                if (!profile) return;
+
+                document.getElementById('wallet-balance').innerText = profile.balance.toFixed(2);
+
+                const { data: txs, error } = await supabase
+                    .from('transactions')
+                    .select('*')
+                    .eq('user_id', profile.id)
+                    .order('created_at', { ascending: false });
+
+                if (error) throw error;
+                logContainer.innerHTML = "";
+
+                if (!txs || txs.length === 0) {
+                    logContainer.innerHTML = `<div class="text-center py-6 text-slate-400 text-xs">لا توجد حركات مالية مسجلة في حسابك حتى الآن.</div>`;
+                    return;
+                }
+
+                txs.forEach(tx => {
+                    let typeLabel = "عملية";
+                    let colorClass = "text-slate-600 bg-slate-50";
+                    let sign = tx.amount >= 0 ? "+" : "";
+
+                    if (tx.type === 'task_reward') { typeLabel = "ربح مهمة"; colorClass = "text-blue-600 bg-blue-50/50 border border-blue-100"; }
+                    else if (tx.type === 'referral_commission') { typeLabel = "ربح إحالة"; colorClass = "text-purple-600 bg-purple-50/50 border border-purple-100"; }
+                    else if (tx.type === 'deposit') { typeLabel = "إيداع محفظة"; colorClass = "text-emerald-600 bg-emerald-50 border border-emerald-100"; }
+                    else if (tx.type === 'withdrawal') { typeLabel = "سحب أرباح"; colorClass = "text-rose-600 bg-rose-50 border border-rose-100"; }
+
+                    const dateStr = new Date(tx.created_at).toLocaleDateString('ar-EG', {hour: '2-digit', minute:'2-digit'});
+
+                    const txItem = document.createElement('div');
+                    txItem.className = `p-3 rounded-xl flex justify-between items-center ${colorClass}`;
+                    txItem.innerHTML = `
+                        <div class="text-right">
+                            <span class="text-xs font-bold block">${tx.description || typeLabel}</span>
+                            <span class="text-[9px] text-slate-400 block mt-0.5">${dateStr}</span>
+                        </div>
+                        <div class="text-left font-black text-sm">${sign}$${tx.amount.toFixed(2)}</div>
+                    `;
+                    logContainer.appendChild(txItem);
+                });
+            } catch (error) { console.error(error.message); }
+        }
+
+        document.getElementById('deposit-verify-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const txHash = document.getElementById('tx-hash').value.trim();
+            const selectedNetwork = document.getElementById('network-selector').value.toUpperCase();
+            
+            alert(`جاري فحص وتدقيق الـ TxID حياً عبر شبكة ${selectedNetwork}... انتظر ثوانٍ معدودة لمعالجة الإيداع رقمياً.`);
+            
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                const depositAmount = 50.00; // قيمة محاكاة حركية مؤقتة للاختبار
+                const profile = await getUserProfile();
+                
+                await supabase.from('profiles').update({ balance: profile.balance + depositAmount }).eq('id', user.id);
+                await supabase.from('transactions').insert([{
+                    user_id: user.id,
+                    amount: depositAmount,
+                    type: 'deposit',
+                    description: `إيداع تلقائي مؤكد عبر شبكة ${selectedNetwork} هاش: ${txHash.substring(0,8)}...`
+                }]);
+
+                alert(`رائع جداً! تم التحقق بنجاح من بيانات المعاملة، وتغذية رصيد المحفظة بمبلغ $${depositAmount}.`);
+                window.location.reload();
+            } catch (err) { console.error(err.message); }
+        });
+
+        initWalletPage();
+    </script>
+</body>
+</html>

@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - طلب سحب الأرباح</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .header-bg {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
+
+    <div class="header-bg text-white px-6 pt-6 pb-16 shadow-lg text-center relative">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <a href="wallet.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold">سحب الأرباح وUSDT</h1>
+            <div class="w-9 h-9 bg-amber-500 rounded-full flex items-center justify-center text-slate-950 font-bold shadow">
+                <i class="fas fa-money-bill-wave"></i>
+            </div>
+        </div>
+
+        <div class="max-w-md mx-auto mt-5 bg-white/10 border border-white/10 p-4 rounded-2xl flex justify-between items-center px-5">
+            <div class="text-right">
+                <span class="text-[10px] text-blue-200 block">الرصيد القابل للسحب</span>
+                <span class="text-xl font-black text-amber-400">$<span id="user-balance">0.00</span></span>
+            </div>
+            <div class="text-left">
+                <span class="text-[10px] text-blue-200 block">باقة الحساب الحالية</span>
+                <span id="user-vip-tier" class="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-lg inline-block mt-0.5">GOLD 0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="px-4 -mt-6 max-w-md mx-auto space-y-4 relative z-10">
+        
+        <div class="bg-white rounded-2xl shadow-md p-4 border border-slate-100 text-right">
+            <h4 class="font-bold text-slate-900 text-xs mb-2 flex items-center gap-1.5 justify-end">
+                قوانين وشروط السحب الآمن <i class="fas fa-info-circle text-blue-600"></i>
+            </h4>
+            <ul class="text-[11px] text-slate-500 space-y-1.5 list-disc list-inside pr-1">
+                <li><strong class="text-slate-700">الحد الأدنى للخطط (10/20/50):</strong> هو <span class="text-blue-600 font-bold">10$</span> كحد أدنى.</li>
+                <li><strong class="text-slate-700">الحد الأدنى للخطط الأعلى:</strong> هو <span class="text-blue-600 font-bold">10% من قيمة باقتك الحالية</span>.</li>
+                <li><strong class="text-slate-700">رسوم السحب والمعالجة:</strong> يتم خصم <span class="text-amber-600 font-bold">5%</span> عمولة من كل طلب سحب.</li>
+                <li><strong class="text-slate-700">المدة الزمنية:</strong> تستغرق معالجة السحب للمحفظة من <span class="text-slate-700 font-bold">24 إلى 72 ساعة</span> كحد أقصى.</li>
+                <li><strong class="text-slate-700">دورية السحب:</strong> يسمح بتقديم طلب سحب <span class="text-rose-600 font-bold">مرة واحدة فقط كل 3 أيام</span>.</li>
+            </ul>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-xl p-5 border border-slate-100 text-right">
+            <form id="withdrawal-form" class="space-y-4">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">اختر شبكة السحب</label>
+                    <select required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95]">
+                        <option value="BEP20">USDT (BEP20 - Binance Smart Chain)</option>
+                        <option value="ERC20">USDT (ERC20 - Ethereum Network)</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">عنوان محفظتك الرقمية المستقبلة (USDT)</label>
+                    <input type="text" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-700 focus:outline-none focus:border-[#0b3c95] text-left" placeholder="قم بلصق عنوان محفظتك هنا 0x...">
+                    <span class="text-[10px] text-red-500 font-medium block mt-1"><i class="fas fa-exclamation-circle"></i> يرجى مطابقة وتأكيد صحة العنوان لتفادي خسارة الأصول للأبد.</span>
+                </div>
+
+                <div>
+                    <div class="flex justify-between items-center mb-1">
+                        <label class="block text-xs font-bold text-slate-500">المبلغ المراد سحبه (USDT)</label>
+                        <span id="calculated-min" class="text-[10px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded">الحد الأدنى لك: $0.00</span>
+                    </div>
+                    <input type="number" id="withdraw-amount" step="0.01" required oninput="calculateNetPayout()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-700 focus:outline-none focus:border-[#0b3c95] text-left" placeholder="0.00">
+                </div>
+
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 text-xs space-y-1.5">
+                    <div class="flex justify-between">
+                        <span class="text-slate-400">عمولة السحب المنصية (5%):</span>
+                        <span id="fee-amount" class="font-bold text-rose-600">$0.00</span>
+                    </div>
+                    <div class="flex justify-between border-t border-slate-200 pt-1.5 font-bold">
+                        <span class="text-slate-800">الصافي الذي سيصل إلى محفظتك:</span>
+                        <span id="net-payout" class="text-emerald-600 text-sm">$0.00</span>
+                    </div>
+                </div>
+
+                <button type="submit" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md cursor-pointer transform active:scale-95">
+                    <i class="fas fa-paper-plane ml-1"></i> تقديم طلب السحب الآن
+                </button>
+            </form>
+        </div>
+
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        let currentBalance = 0.00;
+        let currentVipLevel = 'GOLD 0';
+        let allowedMinimumWithdraw = 10.00; // القيمة الافتراضية للخطط البسيطة
+
+        async function initWithdrawPage() {
+            try {
+                const profile = await getUserProfile();
+                if (!profile) return;
+
+                currentBalance = profile.balance;
+                currentVipLevel = profile.vip_level || 'GOLD 0';
+
+                document.getElementById('user-balance').innerText = currentBalance.toFixed(2);
+                document.getElementById('user-vip-tier').innerText = currentVipLevel;
+
+                // تطبيق لوجيك الشروط الخاص بالحد الأدنى حسب الباقات الحالية
+                if (currentVipLevel === 'GOLD 10' || currentVipLevel === 'GOLD 20' || currentVipLevel === 'GOLD 50' || currentVipLevel === 'GOLD 0') {
+                    allowedMinimumWithdraw = 10.00;
+                } else {
+                    // استخراج القيمة الرقمية للباقة لحساب الـ 10% منها للخطط الأعلى (100, 200, 500, 1000, 1500)
+                    const planValue = parseFloat(currentVipLevel.replace(/[^0-9]/g, ''));
+                    if (!isNaN(planValue)) {
+                        allowedMinimumWithdraw = planValue * 0.10;
+                    }
+                }
+
+                document.getElementById('calculated-min').innerText = `الحد الأدنى لك: $${allowedMinimumWithdraw.toFixed(2)}`;
+
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        // دالة ديناميكية لحساب الخصم الـ 5% والصافي فورا أمام عين العميل
+        function calculateNetPayout() {
+            const amountInput = parseFloat(document.getElementById('withdraw-amount').value);
+            if (isNaN(amountInput) || amountInput <= 0) {
+                document.getElementById('fee-amount').innerText = "$0.00";
+                document.getElementById('net-payout').innerText = "$0.00";
+                return;
+            }
+
+            const fee = amountInput * 0.05;
+            const net = amountInput - fee;
+
+            document.getElementById('fee-amount').innerText = `$${fee.toFixed(2)}`;
+            document.getElementById('net-payout').innerText = `$${net.toFixed(2)}`;
+        }
+
+        // معالجة وحوكمة الشروط الصارمة عند ضغط تقديم طلب السحب
+        document.getElementById('withdrawal-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const withdrawAmount = parseFloat(document.getElementById('withdraw-amount').value);
+
+            // 1. التحقق من كفاية الرصيد الكلي في الحساب
+            if (withdrawAmount > currentBalance) {
+                alert(`عذراً! رصيدك المتاح الحالي ($${currentBalance.toFixed(2)}) أقل من المبلغ المطلوب سحبه.`);
+                return;
+            }
+
+            // 2. التحقق من شرط الحد الأدنى التابع لنوع الباقة المتفق عليها
+            if (withdrawAmount < allowedMinimumWithdraw) {
+                alert(`خطأ في شروط النظام: الحد الأدنى المسموح به للسحب لفئة باقتك الحالية (${currentVipLevel}) هو $${allowedMinimumWithdraw.toFixed(2)} USDT.`);
+                return;
+            }
+
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+
+                // 3. التحقق من دورية السحب (شرط عدم تقديم طلب أحدث من 3 أيام)
+                const threeDaysAgo = new Date();
+                threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
+
+                const { data: recentTxs, error: txError } = await supabase
+                    .from('transactions')
+                    .select('created_at')
+                    .eq('user_id', user.id)
+                    .eq('type', 'withdrawal')
+                    .gt('created_at', threeDaysAgo.toISOString());
+
+                // إذا وجد عمليات سحب سالبة (خصم أرباح) في آخر 3 أيام يرفض المعاملة فوراً
+                if (!txError && recentTxs && recentTxs.length > 0) {
+                    alert("قوانين الأمان الصارمة: تم اكتشاف طلب سحب نشط أو مكتمل لك خلال الـ 3 أيام الماضية. يرجى الانتظار والمحاولة لاحقاً بعد انتهاء دورة الـ 3 أيام.");
+                    return;
+                }
+
+                // 4. تنفيذ الخصم المالي الفوري وتحديث الجدول المالي ووضع السحب قيد المراجعة الفنية (24-72 ساعة)
+                const updatedBalance = currentBalance - withdrawAmount;
+                await supabase.from('profiles').update({ balance: updatedBalance }).eq('id', user.id);
+
+                await supabase.from('transactions').insert([{
+                    user_id: user.id,
+                    amount: -withdrawAmount,
+                    type: 'withdrawal',
+                    description: `طلب سحب معلق (قيد التدقيق الفني خلال 24-72 ساعة)`
+                }]);
+
+                alert(`تم تقديم طلب السحب بنجاح بقيمة $${withdrawAmount.toFixed(2)} USDT!\n\nسيتم تدقيق ومراجعة طلبك وإرسال العوائد الصافية إلى محفظتك المحددة في غضون 24-72 ساعة.`);
+                window.location.href = "wallet.html";
+
+            } catch (err) {
+                alert("حدث خطأ أثناء الاتصال بالخادم، يرجى المحاولة لاحقاً.");
+                console.error(err.message);
+            }
+        });
+
+        initWithdrawPage();
+    </script>
+</body>
+</html>

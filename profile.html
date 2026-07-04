@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - الحساب والتوثيق</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .header-bg {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
+
+    <div class="header-bg text-white px-6 pt-6 pb-20 shadow-lg relative text-center">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold">الملف الشخصي</h1>
+            <button onclick="logout()" class="text-lg p-2 hover:bg-red-500/20 text-red-300 rounded-full transition cursor-pointer">
+                <i class="fas fa-sign-out-alt"></i>
+            </button>
+        </div>
+
+        <div class="mt-6 flex flex-col items-center justify-center">
+            <div class="w-16 h-16 rounded-full bg-slate-200 border-4 border-white/20 flex items-center justify-center text-slate-700 text-2xl font-bold shadow-inner">
+                <i class="fas fa-user text-slate-400"></i>
+            </div>
+            <h2 id="profile-username" class="text-base font-bold mt-2">جاري التحميل...</h2>
+            <p id="profile-email" class="text-xs text-blue-200 mt-0.5">user@example.com</p>
+        </div>
+    </div>
+
+    <div class="px-4 -mt-8 max-w-md mx-auto relative z-10 space-y-4">
+        
+        <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100">
+            <h3 class="font-bold text-slate-900 text-sm text-right mb-3 flex items-center gap-1.5 justify-end">
+                توثيق الحساب (KYC) <i class="fas fa-shield-alt text-blue-600"></i>
+            </h3>
+            
+            <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center justify-between">
+                <div class="text-right">
+                    <span class="text-xs font-bold text-slate-500 block">حالة التوثيق الحالي</span>
+                    <span id="kyc-status-text" class="text-xs font-black text-amber-600 mt-1 block">غير موثق</span>
+                </div>
+                <div id="kyc-status-icon" class="w-9 h-9 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center text-sm">
+                    <i class="fas fa-user-clock"></i>
+                </div>
+            </div>
+
+            <button id="kyc-btn" onclick="startKYC()" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-3 rounded-xl text-xs transition shadow-sm mt-4 cursor-pointer">
+                رفع بطاقة الهوية / جواز السفر
+            </button>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 space-y-3.5 text-right">
+            <h3 class="font-bold text-slate-900 text-sm mb-1 flex items-center gap-1.5 justify-end">
+                إعدادات الأمان <i class="fas fa-lock-open text-slate-500"></i>
+            </h3>
+            
+            <div class="border-b border-slate-50 pb-2.5">
+                <span class="text-[10px] text-slate-400 block">معرّف المستخدم المالي (ID)</span>
+                <span id="profile-id" class="text-xs font-mono font-bold text-slate-700 block mt-0.5">uuid-loading...</span>
+            </div>
+            
+            <div>
+                <span class="text-[10px] text-slate-400 block">تاريخ الانضمام للمنصة</span>
+                <span id="profile-joined" class="text-xs font-bold text-slate-700 block mt-0.5">2026/01/01</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
+        <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-file-alt text-lg"></i><span class="text-[10px]">التقارير</span>
+            </button>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-briefcase text-lg"></i><span class="text-[10px]">المهام</span>
+            </button>
+            <div class="relative -mt-6 flex justify-center">
+                <a href="dashboard.html" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-blue-600/40 border-4 border-white flex justify-center items-center">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-question-circle text-lg"></i><span class="text-[10px]">المساعدة</span>
+            </button>
+            <button class="text-[#0b3c95] flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-user-circle text-lg"></i><span class="text-[10px]">الحساب</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        // تحميل بيانات المستخدم وعرضها
+        async function loadProfileData() {
+            try {
+                const { data: { user } } = await supabase.auth.getUser();
+                if (!user) {
+                    window.location.href = "signin.html";
+                    return;
+                }
+
+                const profile = await getUserProfile();
+                if (profile) {
+                    document.getElementById('profile-username').innerText = profile.username;
+                    document.getElementById('profile-email').innerText = user.email;
+                    document.getElementById('profile-id').innerText = profile.id;
+                    
+                    // تحسين شكل تاريخ الانضمام
+                    const joinDate = new Date(profile.created_at).toLocaleDateString('ar-EG');
+                    document.getElementById('profile-joined').innerText = joinDate;
+                }
+            } catch (error) {
+                console.error(error.message);
+            }
+        }
+
+        // دالة محاكاة التوثيق (يمكن لاحقاً ربطها برفع ملفات حقيقية لـ Supabase Storage)
+        function startKYC() {
+            alert("ميزة رفع الوثائق وتأكيد الهوية قيد المراجعة الفنية الآن، سيتم تفعيل ميزة الفحص الضوئي قريباً!");
+            
+            // تغيير واجهة الحالة لتبدو معلقة للتجربة البصرية
+            document.getElementById('kyc-status-text').innerText = "قيد المراجعة (معلق)";
+            document.getElementById('kyc-status-text').className = "text-xs font-black text-orange-500 mt-1 block";
+            document.getElementById('kyc-status-icon').className = "w-9 h-9 bg-orange-50 text-orange-50 rounded-full flex items-center justify-center text-sm text-orange-500";
+            document.getElementById('kyc-btn').disabled = true;
+            document.getElementById('kyc-btn').innerText = "تم إرسال الطلب بنجاح";
+            document.getElementById('kyc-btn').className = "w-full bg-slate-100 text-slate-400 font-bold py-3 rounded-xl text-xs mt-4 cursor-not-allowed";
+        }
+
+        // دالة تسجيل الخروج
+        async function logout() {
+            await supabase.auth.signOut();
+            window.location.href = "signin.html";
+        }
+
+        loadProfileData();
+    </script>
+</body>
+</html>

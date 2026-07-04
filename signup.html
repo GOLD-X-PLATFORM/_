@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - إنشاء حساب جديد</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4?v=2026"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .auth-header {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2.5rem;
+            border-bottom-right-radius: 2.5rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen flex flex-col justify-between pb-6">
+
+    <div class="auth-header text-white px-6 pt-10 pb-16 shadow-xl text-center relative">
+        <div class="max-w-md mx-auto">
+            <h1 class="text-2xl font-black tracking-wider text-amber-400">GOLD X</h1>
+            <p class="text-xs text-blue-200 mt-2">انضم لعائلة المستثمرين اليوم وابدأ في جمع الـ 4% يومياً.</p>
+        </div>
+    </div>
+
+    <div class="px-4 -mt-10 max-w-md mx-auto w-full flex-grow my-auto">
+        <div class="bg-white rounded-3xl shadow-xl p-6 border border-slate-100 text-right">
+            <form id="signup-form" class="space-y-4">
+                
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">الاسم الكامل</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-3 text-slate-400 text-xs"><i class="fas fa-user"></i></span>
+                        <input type="text" id="fullname" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95]" placeholder="الاسم ثلاثي أو ثنائي">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">البريد الإلكتروني</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-3 text-slate-400 text-xs"><i class="fas fa-envelope"></i></span>
+                        <input type="email" id="email" required class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95]" placeholder="name@example.com">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">كلمة المرور (6 خانات أو أكثر)</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-3 text-slate-400 text-xs"><i class="fas fa-lock"></i></span>
+                        <input type="password" id="password" required minlength="6" class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95]" placeholder="••••••••">
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold text-slate-500 mb-1.5">كود الإحالة (اختياري)</label>
+                    <div class="relative">
+                        <span class="absolute right-3 top-3 text-slate-400 text-xs"><i class="fas fa-gift"></i></span>
+                        <input type="text" id="referral-code" class="w-full bg-slate-50 border border-slate-200 rounded-xl pr-9 pl-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95]" placeholder="اكتب كود الشخص الذي دعاك">
+                    </div>
+                </div>
+
+                <div class="flex items-start gap-2 pt-1">
+                    <input type="checkbox" required id="agree" class="mt-0.5 accent-[#0b3c95]">
+                    <label for="agree" class="text-[10px] text-slate-400 leading-tight">أوافق على جميع شروط وقوانين منصة GOLD X الاستثمارية التابعة لـ DEX Family.</label>
+                </div>
+
+                <button type="submit" id="submit-btn" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md cursor-pointer transform active:scale-95">
+                    <i class="fas fa-user-plus ml-1"></i> إنشاء الحساب وتفعيله
+                </button>
+            </form>
+
+            <div class="text-center mt-5 pt-4 border-t border-slate-100">
+                <p class="text-xs text-slate-400">تمتلك حساباً بالفعل؟ <a href="signin.html?v=2026" class="text-blue-600 font-bold hover:underline">قم بتسجيل الدخول من هنا</a></p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+        const SUPABASE_URL = "https://uhhvdghvwmspxuuhpllc.supabase.co"; 
+        const SUPABASE_ANON_KEY = "sb_publishable_zU1iBaERUa7KN71PBdbPdA_bRbzBdpm";
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const btn = document.getElementById('submit-btn');
+            btn.disabled = true;
+            btn.innerHTML = '<i class="fas fa-spinner animate-spin"></i> جاري إنشاء حسابك...';
+
+            const fullname = document.getElementById('fullname').value;
+            const email = document.getElementById('email').value;
+            const password = document.getElementById('password').value;
+            const refCode = document.getElementById('referral-code').value;
+
+            try {
+                // 1. تسجيل الحساب الأساسي في Auth
+                const { data, error } = await supabase.auth.signUp({
+                    email: email,
+                    password: password,
+                });
+
+                if (error) throw error;
+
+                if (data.user) {
+                    const userRandomCode = Math.random().toString(36).substring(2, 10);
+                    const currentDomain = window.location.origin + window.location.pathname.replace('signup.html', 'signup.html');
+                    const generatedLink = `${currentDomain}?ref=${userRandomCode}`;
+
+                    // 2. إدخال السجل المالي الكامل للمستند لفتح واجهة الداشبورد فوراً
+                    const { error: profileError } = await supabase
+                        .from('profiles')
+                        .insert([{
+                            id: data.user.id,
+                            full_name: fullname,
+                            balance: 0.00,
+                            vip_level: 'VIP 0',
+                            referred_by: refCode || null,
+                            my_referral_code: userRandomCode,
+                            referral_link: generatedLink
+                        }]);
+
+                    if (profileError) throw profileError;
+
+                    alert("✅ تم إنشاء الحساب بنجاح! مرحباً بك في لوحة تحكم GOLD X.");
+                    window.location.href = "dashboard.html";
+                } else {
+                    throw new Error("لم يتم إرجاع بيانات المستخدم بشكل صحيح.");
+                }
+
+            } catch (err) {
+                alert("❌ حدث خطأ حاول مرة اخرى:\nالسبب: " + err.message);
+                btn.disabled = false;
+                btn.innerHTML = '<i class="fas fa-user-plus ml-1"></i> إنشاء الحساب وتفعيله';
+            }
+        });
+    </script>
+</body>
+</html>

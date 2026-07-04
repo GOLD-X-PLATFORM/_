@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - لوحة التحكم الرئيسية</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .dashboard-header {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2.5rem;
+            border-bottom-right-radius: 2.5rem;
+        }
+        /* حركة سلسة لشريط الإشعارات */
+        @keyframes marquee {
+            0% { transform: translateX(100%); }
+            100% { transform: translateX(-100%); }
+        }
+        .animate-marquee {
+            display: inline-block;
+            white-space: nowrap;
+            animation: marquee 15s linear infinite;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
+
+    <!-- الجزء العلوي: هيدر المنصة وبطاقة الرصيد الفاخرة -->
+    <div class="dashboard-header text-white px-6 pt-6 pb-20 shadow-xl relative">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <div class="flex items-center gap-2">
+                <div class="w-8 h-8 bg-amber-500 rounded-lg flex items-center justify-center font-black text-slate-950 shadow-md">X</div>
+                <span class="text-lg font-black tracking-wider text-amber-400">GOLD X</span>
+            </div>
+            <div class="flex items-center gap-3">
+                <span id="vip-badge" class="text-[10px] font-black bg-amber-500 text-slate-950 px-2.5 py-1 rounded-full shadow-sm"><i class="fas fa-crown"></i> VIP 0</span>
+                <button onclick="logout()" class="text-white/70 hover:text-white p-1 text-sm cursor-pointer"><i class="fas fa-sign-out-alt"></i></button>
+            </div>
+        </div>
+
+        <!-- بطاقة الرصيد الرقمية الذكية -->
+        <div class="max-w-md mx-auto mt-6 bg-white/10 border border-white/10 backdrop-blur-md p-5 rounded-3xl shadow-inner text-right relative overflow-hidden">
+            <div class="absolute -right-6 -bottom-6 text-white/5 text-8xl font-black pointer-events-none">GOLD</div>
+            
+            <span class="text-xs text-blue-200 block font-medium">إجمالي الرصيد المتاح (USDT)</span>
+            <div class="flex items-baseline gap-1 mt-1">
+                <span class="text-3xl font-black tracking-tight text-amber-400">$</span>
+                <span id="live-balance" class="text-3xl font-black tracking-tight text-amber-400">0.00</span>
+            </div>
+
+            <div class="grid grid-cols-2 gap-4 mt-5 pt-4 border-t border-white/10 text-xs">
+                <div>
+                    <span class="text-blue-200 block text-[10px]">أرباح المهام اليوم المتوقعة</span>
+                    <span id="daily-estimation" class="font-bold text-emerald-400 text-sm">+$0.00</span>
+                </div>
+                <div class="border-r border-white/10 pr-4">
+                    <span class="text-blue-200 block text-[10px]">إجمالي الأرباح المسحوبة</span>
+                    <span id="total-withdrawn" class="font-bold text-slate-200 text-sm">$0.00</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- المحتوى الرئيسي الداخلي المتموج لأسفل الهيدر -->
+    <div class="px-4 -mt-10 max-w-md mx-auto space-y-5 relative z-10">
+
+        <!-- شريط الإشعارات والأخبار المتحرك للتثقيف أو إثباتات السحب الحية -->
+        <div class="bg-amber-500 text-slate-950 text-xs font-bold py-2 px-3 rounded-xl shadow-md flex items-center gap-2 overflow-hidden border border-amber-400">
+            <i class="fas fa-bullhorn text-sm shrink-0"></i>
+            <div class="w-full overflow-hidden relative">
+                <div class="animate-marquee">
+                    🔥 مستخدم مجهول سحب للتو <span class="underline">45.00 USDT</span> بنجاح! 🚀 انضم للمجموعات الرسمية لعائلة DEX لتلقي التحديثات الدورية لـ GOLD X.
+                </div>
+            </div>
+        </div>
+
+        <!-- مؤشر بصري لإتمام المهام اليومية (Daily Tasks Progress Tracker) -->
+        <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-right">
+            <div class="flex justify-between items-center mb-2">
+                <h3 class="text-xs font-bold text-slate-900"><i class="fas fa-tasks text-blue-600 ml-1"></i> تتبع المهام اليومية</h3>
+                <span id="task-ratio" class="text-[11px] font-bold text-blue-600 bg-blue-50 px-2 py-0.5 rounded-full">0 / 0 مؤملة</span>
+            </div>
+            <div class="w-full bg-slate-100 h-2.5 rounded-full overflow-hidden">
+                <div id="task-progress-bar" class="bg-gradient-to-l from-blue-600 to-blue-400 h-2.5 rounded-full transition-all duration-500" style="width: 0%"></div>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-1.5">أكمل مهام باقتك الحالية للحصول على عائد الـ 4% الفوري لحسابك.</p>
+        </div>
+
+        <!-- شبكة الأزرار الأيقونية الرئيسية (Grid Action Menu) -->
+        <div class="grid grid-cols-3 gap-3">
+            <!-- المحفظة والشحن -->
+            <a href="wallet.html" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer">
+                <div class="w-11 h-11 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-lg mb-2 group-hover:bg-blue-600 group-hover:text-white transition">
+                    <i class="fas fa-wallet"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">إيداع وسحب</span>
+            </a>
+
+            <!-- الترقية واشتراكات VIP -->
+            <a href="vip.html" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer">
+                <div class="w-11 h-11 bg-amber-50 text-amber-600 rounded-xl flex items-center justify-center text-lg mb-2 group-hover:bg-amber-500 group-hover:text-slate-950 transition">
+                    <i class="fas fa-crown"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">باقات VIP</span>
+            </a>
+
+            <!-- تنفيذ المهام اليومية -->
+            <a href="#" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer">
+                <div class="w-11 h-11 bg-emerald-50 text-emerald-600 rounded-xl flex items-center justify-center text-lg mb-2 group-hover:bg-emerald-600 group-hover:text-white transition">
+                    <i class="fas fa-bolt"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">مركز المهام</span>
+            </a>
+
+            <!-- نظام الترتيب الهرمي (الإحالات) -->
+            <a href="referral.html" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer">
+                <div class="w-11 h-11 bg-purple-50 text-purple-600 rounded-xl flex items-center justify-center text-lg mb-2 group-hover:bg-purple-600 group-hover:text-white transition">
+                    <i class="fas fa-users"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">فريق الإحالة</span>
+            </a>
+
+            <!-- تقارير الأرباح والمعاملات المعمقة -->
+            <a href="#" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer">
+                <div class="w-11 h-11 bg-indigo-50 text-indigo-600 rounded-xl flex items-center justify-center text-lg mb-2 group-hover:bg-indigo-600 group-hover:text-white transition">
+                    <i class="fas fa-chart-pie"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">السجلات المالي</span>
+            </a>
+
+            <!-- مركز الدعم الفني الفوري وتفاصيل المشروع -->
+            <a href="#" class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex flex-col items-center justify-center text-center group active:scale-95 transition cursor-pointer">
+                <div class="w-11 h-11 bg-rose-50 text-rose-600 rounded-xl flex items-center justify-center text-lg mb-2 group-hover:bg-rose-600 group-hover:text-white transition">
+                    <i class="fas fa-headset"></i>
+                </div>
+                <span class="text-xs font-bold text-slate-800">الدعم الفني</span>
+            </a>
+        </div>
+
+        <!-- قسم العروض الترويجية واللافتة الجذابة التابعة لـ DEX STORE -->
+        <div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md flex items-center justify-between border border-slate-700 text-right">
+            <div class="space-y-1">
+                <span class="bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded uppercase tracking-tight">DEX STORE</span>
+                <h4 class="text-xs font-bold">بوتات تداول مخصصة ومؤشرات VIP</h4>
+                <p class="text-[10px] text-slate-400">احصل على كود خصم حصري لأعضاء عائلة GOLD X اليوم.</p>
+            </div>
+            <i class="fas fa-store text-2xl text-slate-600 opacity-80 mr-2"></i>
+        </div>
+
+    </div>
+
+    <!-- قائمة التنقل السفلية الثابتة الموحدة (Active: Home) -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
+        <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-file-alt text-lg"></i><span class="text-[10px]">التقارير</span>
+            </button>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-briefcase text-lg"></i><span class="text-[10px]">المهام</span>
+            </button>
+            <div class="relative -mt-6 flex justify-center">
+                <a href="dashboard.html" class="w-14 h-14 bg-amber-500 text-slate-950 rounded-full flex items-center justify-center text-xl shadow-lg shadow-amber-500/40 border-4 border-white">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-question-circle text-lg"></i><span class="text-[10px]">المساعدة</span>
+            </button>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-user-circle text-lg"></i><span class="text-[10px]">الحساب</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        // تعريف قيم الأرباح اليومية لكل باقة لحساب العداد التقديري بدقة
+        const planRates = {
+            'GOLD 10': 0.40,
+            'GOLD 20': 0.80,
+            'GOLD 50': 2.00,
+            'GOLD 100': 4.00,
+            'GOLD 200': 8.00,
+            'GOLD 500': 20.00,
+            'GOLD 1000': 40.00,
+            'GOLD 1500': 60.00
+        };
+
+        async function loadDashboardData() {
+            try {
+                const profile = await getUserProfile();
+                if (!profile) return;
+
+                // 1. عرض الرصيد الحي
+                document.getElementById('live-balance').innerText = profile.balance.toFixed(2);
+                
+                // 2. التحقق من مستوى الـ VIP وعرضه وحساب العائد اليومي المتوقع له
+                if (profile.vip_level && profile.vip_level !== 'VIP 0') {
+                    document.getElementById('vip-badge').innerHTML = `<i class="fas fa-crown"></i> ${profile.vip_level}`;
+                    
+                    const dailyProfit = planRates[profile.vip_level] || 0.00;
+                    document.getElementById('daily-estimation').innerText = `+$${dailyProfit.toFixed(2)}`;
+                    
+                    // تحديث مؤشر عينة المهام لغرض المحاكاة المرئية في الواجهة
+                    document.getElementById('task-ratio').innerText = "0 / 5 مكتملة";
+                    document.getElementById('task-progress-bar').style.width = "0%";
+                } else {
+                    document.getElementById('vip-badge').innerHTML = `<i class="fas fa-user"></i> VIP 0 (مجاني)`;
+                    document.getElementById('daily-estimation').innerText = "+$0.00";
+                }
+
+                // 3. جلب مجموع الإيداعات أو السحوبات لتعبئة خانة السحوبات التراكمية
+                const { data: txData, error: txError } = await supabase
+                    .from('transactions')
+                    .select('amount')
+                    .eq('user_id', profile.id)
+                    .eq('type', 'withdrawal');
+
+                if (!txError && txData) {
+                    const totalWithdrawn = txData.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
+                    document.getElementById('total-withdrawn').innerText = `$${totalWithdrawn.toFixed(2)}`;
+                }
+
+            } catch (error) {
+                console.error("حدث خطأ أثناء تحميل بيانات لوحة التحكم الحية:", error.message);
+            }
+        }
+
+        async function logout() {
+            const confirmOut = confirm("هل أنت متأكد من رغبتك في تسجيل الخروج من GOLD X؟");
+            if (!confirmOut) return;
+            
+            const { error } = await supabase.auth.signOut();
+            if (!error) {
+                window.location.href = "index.html";
+            }
+        }
+
+        // تشغيل فوري للبيانات عند التحميل
+        loadDashboardData();
+    </script>
+</body>
+</html>

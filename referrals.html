@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - شبكة فريقي</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .header-bg {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
+
+    <div class="header-bg text-white px-6 pt-6 pb-20 shadow-lg text-center relative">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold">شجرة الإحالات</h1>
+            <div class="w-9 h-9 bg-amber-500 rounded-full flex items-center justify-center text-slate-950 font-bold shadow">
+                <i class="fas fa-sitemap"></i>
+            </div>
+        </div>
+        
+        <div class="max-w-md mx-auto mt-6">
+            <p class="text-blue-200 text-xs">كود الدعوة الخاص بك</p>
+            <div class="mt-2 flex items-center justify-between bg-white/10 border border-white/20 rounded-xl px-4 py-2.5 max-w-xs mx-auto">
+                <span id="my-code" class="font-mono font-bold tracking-wider text-amber-400">GOLDX...</span>
+                <button id="copy-btn" class="text-xs bg-white text-[#0b3c95] font-bold px-3 py-1 rounded-lg hover:bg-slate-100 transition cursor-pointer">
+                    <i class="fas fa-copy"></i> نسخ
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="px-4 -mt-8 max-w-md mx-auto relative z-10 space-y-4">
+        
+        <div class="bg-white rounded-2xl shadow-md p-4 border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-right">
+                <div class="w-10 h-10 rounded-xl bg-blue-50 text-[#0b3c95] flex items-center justify-center text-base font-bold">
+                    1
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">المستوى الأول (Direct)</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">أعضاء سجلوا برابطك مباشرة (عمولة 10%)</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <span id="lvl1-count" class="text-lg font-black text-slate-900">0</span>
+                <span class="text-[10px] text-slate-400 block">عضو</span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md p-4 border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-right">
+                <div class="w-10 h-10 rounded-xl bg-purple-50 text-purple-600 flex items-center justify-center text-base font-bold">
+                    2
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">المستوى الثاني (Indirect)</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">أعضاء تمت دعوتهم بواسطة مستواك الأول (عمولة 5%)</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <span id="lvl2-count" class="text-lg font-black text-slate-900">0</span>
+                <span class="text-[10px] text-slate-400 block">عضو</span>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md p-4 border border-slate-100 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-right">
+                <div class="w-10 h-10 rounded-xl bg-orange-50 text-orange-600 flex items-center justify-center text-base font-bold">
+                    3
+                </div>
+                <div>
+                    <h3 class="font-bold text-slate-900 text-sm">المستوى الثالث (Sub-Indirect)</h3>
+                    <p class="text-[10px] text-slate-400 mt-0.5">أعضاء تمت دعوتهم بواسطة مستواك الثاني (عمولة 2%)</p>
+                </div>
+            </div>
+            <div class="text-left">
+                <span id="lvl3-count" class="text-lg font-black text-slate-900">0</span>
+                <span class="text-[10px] text-slate-400 block">عضو</span>
+            </div>
+        </div>
+
+    </div>
+
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
+        <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-file-alt text-lg"></i><span class="text-[10px]">التقارير</span>
+            </button>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-briefcase text-lg"></i><span class="text-[10px]">المهام</span>
+            </button>
+            <div class="relative -mt-6 flex justify-center">
+                <a href="dashboard.html" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-blue-600/40 border-4 border-white flex justify-center items-center">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-question-circle text-lg"></i><span class="text-[10px]">المساعدة</span>
+            </button>
+            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-user-circle text-lg"></i><span class="text-[10px]">الحساب</span>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        async function loadReferralTree() {
+            try {
+                const profile = await getUserProfile();
+                if (!profile) return;
+
+                // 1. عرض كود الإحالة للمستخدم وتجهيز زر النسخ
+                document.getElementById('my-code').innerText = profile.referral_code;
+                document.getElementById('copy-btn').addEventListener('click', () => {
+                    const inviteLink = window.location.origin + "/signup.html?ref=" + profile.referral_code;
+                    navigator.clipboard.writeText(inviteLink);
+                    alert("تم نسخ رابط الدعوة الشجري الخاص بك بنجاح!");
+                });
+
+                // 2. جلب المستوى الأول (المسجلين بكود المستخدم مباشرة)
+                const { data: level1, error: e1 } = await supabase
+                    .from('profiles')
+                    .select('id')
+                    .eq('referred_by', profile.id);
+                
+                if (e1) throw e1;
+                const l1Count = level1 ? level1.length : 0;
+                document.getElementById('lvl1-count').innerText = l1Count;
+
+                if (l1Count > 0) {
+                    const l1Ids = level1.map(u => u.id);
+
+                    // 3. جلب المستوى الثاني (المسجلين بواسطة أعضاء المستوى الأول)
+                    const { data: level2, error: e2 } = await supabase
+                        .from('profiles')
+                        .select('id')
+                        .in('referred_by', l1Ids);
+
+                    if (e2) throw e2;
+                    const l2Count = level2 ? level2.length : 0;
+                    document.getElementById('lvl2-count').innerText = l2Count;
+
+                    if (l2Count > 0) {
+                        const l2Ids = level2.map(u => u.id);
+
+                        // 4. جلب المستوى الثالث (المسجلين بواسطة أعضاء المستوى الثاني)
+                        const { data: level3, error: e3 } = await supabase
+                            .from('profiles')
+                            .select('id')
+                            .in('referred_by', l2Ids);
+
+                        if (e3) throw e3;
+                        document.getElementById('lvl3-count').innerText = level3 ? level3.length : 0;
+                    }
+                }
+
+            } catch (error) {
+                console.error("حدث خطأ أثناء بناء شبكة الفريق:", error.message);
+            }
+        }
+
+        loadReferralTree();
+    </script>
+</body>
+</html>
