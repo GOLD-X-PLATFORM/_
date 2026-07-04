@@ -1,13 +1,14 @@
 // ==========================================
-// GOLD X - ملف الربط البرمجي الأساسي الموحد
+// GOLD X - ملف الربط البرمجي الأساسي الموحد (المعدل والمحمي)
 // ==========================================
 
 // تم تركيب بيانات مشروعك النهائية والكاملة بنجاح
 const SUPABASE_URL = "https://uhhvdghvwmspxuuhpllc.supabase.co"; 
 const SUPABASE_ANON_KEY = "sb_publishable_zU1iBaERUa7KN71PBdbPdA_bRbzBdpm";
 
-// تهيئة كائن السوبابيس ليصبح متاحاً في جميع الصفحات التي تستدعي app.js
-const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// إصلاح خطأ Temporal Dead Zone: تم تغيير اسم المتغير إلى window.supabaseClient 
+// لمنع التعارض مع المكتبة العالمية (Global CDN) وتأمين عملها في جميع الصفحات التي تستدعي الملف
+window.supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /**
  * دالة عالمية مصلحة لجلب بيانات الحساب الحالي (الملف المالي والرتبة)
@@ -15,8 +16,8 @@ const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
  */
 async function getUserProfile() {
     try {
-        // التحقق من وجود مستخدم مسجل دخول حالياً
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
+        // التحقق من وجود مستخدم مسجل دخول حالياً عبر الكائن المحدث
+        const { data: { user }, error: authError } = await window.supabaseClient.auth.getUser();
         
         if (authError || !user) {
             console.log("لم يتم العثور على جلسة نشطة، تحويل إلى صفحة تسجيل الدخول...");
@@ -25,7 +26,7 @@ async function getUserProfile() {
         }
 
         // جلب البيانات المالية والرتبة من جدول الـ profiles مفرزة بالـ ID الخاص بالمستخدم
-        const { data: profile, error: profileError } = await supabase
+        const { data: profile, error: profileError } = await window.supabaseClient
             .from('profiles')
             .select('*')
             .eq('id', user.id)
@@ -47,7 +48,7 @@ async function getUserProfile() {
  */
 async function handleLogout() {
     try {
-        const { error } = await supabase.auth.signOut();
+        const { error } = await window.supabaseClient.auth.signOut();
         if (error) throw error;
         
         alert("تم تسجيل الخروج بنجاح من منصة GOLD X. في أمان الله!");
@@ -67,7 +68,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const isProtected = protectedPages.some(page => currentPath.includes(page));
     
     if (isProtected) {
-        const { data: { user } } = await supabase.auth.getUser();
+        const { data: { user } } = await window.supabaseClient.auth.getUser();
         if (!user) {
             window.location.href = "signin.html";
         }
