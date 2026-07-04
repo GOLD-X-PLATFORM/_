@@ -218,71 +218,41 @@
             </button>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
-    <script>
-        let currentBalance = 0.00;
-
-        async function loadVIPPageData() {
-            try {
-                const profile = await getUserProfile();
-                if (!profile) return;
-
-                currentBalance = profile.balance;
-                document.getElementById('user-balance').innerText = currentBalance.toFixed(2);
-                
-                if (profile.vip_level) {
-                    document.getElementById('current-vip-tier').innerText = profile.vip_level;
-                }
-            } catch (error) {
-                console.error("خطأ أثناء جلب تفاصيل الحساب:", error.message);
-            }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    async function checkCurrentVIP() {
+        const profile = await getUserProfile();
+        if (profile) {
+            document.getElementById('current-vip-tier').innerText = profile.vip_level;
+            document.getElementById('user-balance').innerText = parseFloat(profile.balance).toFixed(2) + " USDT";
         }
+    }
 
-        async function purchasePlan(planName, planPrice) {
-            if (currentBalance < planPrice) {
-                const confirmRedirect = confirm(`عذراً! رصيدك الحالي ($${currentBalance.toFixed(2)}) غير كافٍ لتفعيل باقة ${planName} بقيمة $${planPrice.toFixed(2)}.\n\nهل تريد الذهاب لصفحة المحفظة لشحن حسابك الآن؟`);
-                if (confirmRedirect) {
-                    window.location.href = "wallet.html";
-                }
-                return;
-            }
+    async function buyPlan(planName, planPrice) {
+        if (!confirm(`هل أنت متأكد من رغبتك في تفعيل باقة ${planName} بقيمة ${planPrice} USDT؟`)) return;
 
-            const confirmPurchase = confirm(`هل أنت متأكد من رغبتك في تفعيل خطة ${planName}؟ سيتم خصم مبلغ $${planPrice.toFixed(2)} USDT من محفظتك فوراً.`);
-            if (!confirmPurchase) return;
+        try {
+            // استدعاء دالة RPC الآمنة على الخادم لمنع التلاعب عبر الـ Console
+            const { data: success, error } = await window.supabaseClient.rpc('purchase_vip_plan', {
+                plan_name: planName,
+                plan_price: planPrice
+            });
 
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                
-                const newBalance = currentBalance - planPrice;
-                const { error: profileError } = await supabase
-                    .from('profiles')
-                    .update({ 
-                        balance: newBalance,
-                        vip_level: planName 
-                    })
-                    .eq('id', user.id);
+            if (error) throw error;
 
-                if (profileError) throw profileError;
-
-                await supabase.from('transactions').insert([{
-                    user_id: user.id,
-                    amount: -planPrice,
-                    type: 'withdrawal',
-                    description: `شراء وتفعيل خطة الاستثمار الفورية ${planName}`
-                }]);
-
-                alert(`تهانينا الحارة! تم تفعيل خطة ${planName} بنجاح، وبدء احتساب أرباح المهام اليومية بمعدل 4%.`);
+            if (success) {
+                alert(`مبروك! تم تفعيل باقة ${planName} بنجاح وخصم القيمة.`);
                 window.location.reload();
-
-            } catch (error) {
-                alert("حدث خطأ أثناء معالجة عملية الترقية، يرجى المحاولة لاحقاً.");
-                console.error(error.message);
+            } else {
+                alert("فشل التفعيل: رصيدك الحالي غير كافٍ لإتمام هذه المعاملة.");
             }
+        } catch (err) {
+            alert("خطأ أمني: " + err.message);
         }
+    }
 
-        loadVIPPageData();
-    </script>
+    window.addEventListener('DOMContentLoaded', checkCurrentVIP);
+</script>
 </body>
 </html>
