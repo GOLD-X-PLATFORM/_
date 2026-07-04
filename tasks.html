@@ -62,95 +62,40 @@
             </button>
         </div>
     </div>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    // اربط هذه الدالة بزر تنفيذ المهمة لديك
+    // مثال: onclick="executeTask(1, 5.00)"
+    async function executeTask(taskId, reward) {
+        const btn = event.target;
+        const originalText = btn.innerText;
+        btn.disabled = true;
+        btn.innerText = 'جاري التنفيذ...';
 
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
-    <script>
-        async function fetchDailyTasks() {
-            try {
-                const listContainer = document.getElementById('tasks-list');
-                const { data: { user } } = await supabase.auth.getUser();
-                if (!user) {
-                    window.location.href = "signin.html";
-                    return;
-                }
+        try {
+            // استدعاء الدالة الآمنة من الخادم
+            const { data: success, error } = await window.supabaseClient.rpc('complete_user_task', {
+                target_task_id: taskId,
+                reward_amount: reward
+            });
 
-                // 1. جلب كافة المهام النشطة المتوفرة بالمنصة
-                const { data: tasks, error: tasksError } = await supabase
-                    .from('tasks')
-                    .select('*')
-                    .eq('is_active', true);
+            if (error) throw error;
 
-                if (tasksError) throw tasksError;
-
-                // 2. جلب المهام التي نفذها المستخدم مسبقاً لمنع التكرار
-                const { data: userCompleted } = await supabase
-                    .from('user_tasks')
-                    .select('task_id')
-                    .eq('user_id', user.id);
-
-                const completedIds = userCompleted ? userCompleted.map(item => item.task_id) : [];
-
-                listContainer.innerHTML = "";
-
-                if (tasks.length === 0) {
-                    listContainer.innerHTML = `<div class="text-center py-10 text-slate-400 text-sm">لا توجد مهام نشطة حالياً. انتظر عروض الإدارة!</div>`;
-                    return;
-                }
-
-                // 3. بناء بطاقات المهام بالهوية البصرية المطلوبة
-                tasks.forEach(task => {
-                    const isDone = completedIds.includes(task.id);
-                    const card = document.createElement('div');
-                    card.className = "bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex justify-between items-center transition hover:shadow-md";
-                    
-                    card.innerHTML = `
-                        <div class="text-right flex-1 pl-2">
-                            <h3 class="font-bold text-slate-900 text-sm flex items-center gap-1.5">
-                                <span class="w-2 h-2 rounded-full ${isDone ? 'bg-green-500' : 'bg-blue-600'}"></span>
-                                ${task.title}
-                            </h3>
-                            <p class="text-[11px] text-slate-400 mt-1 leading-relaxed">${task.description || ''}</p>
-                            <span class="inline-flex items-center gap-1 bg-amber-50 text-amber-700 font-extrabold text-[11px] px-2 py-0.5 rounded-lg mt-2 border border-amber-100">
-                                <i class="fas fa-plus text-[9px]"></i> $${task.reward_amount.toFixed(2)}
-                            </span>
-                        </div>
-                        <div class="shrink-0">
-                            ${isDone ? 
-                                `<span class="bg-green-50 text-green-600 text-xs font-bold px-3 py-2 rounded-xl flex items-center gap-1 border border-green-100"><i class="fas fa-check-circle"></i> مكتملة</span>` : 
-                                `<button onclick="executeTask(${task.id})" class="bg-[#0b3c95] hover:bg-[#05245e] text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-sm cursor-pointer transform active:scale-95">بدء التنفيذ</button>`
-                            }
-                        </div>
-                    `;
-                    listContainer.appendChild(card);
-                });
-
-            } catch (error) {
-                console.error("خطأ جلب البيانات:", error.message);
+            if (success) {
+                alert("تم تنفيذ المهمة بنجاح وإضافة الأرباح!");
+                window.location.reload();
+            } else {
+                alert("لقد قمت بإتمام هذه المهمة مسبقاً!");
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
+        } catch (err) {
+            alert("خطأ: " + err.message);
+            btn.disabled = false;
+            btn.innerText = originalText;
         }
-
-        async function executeTask(taskId) {
-            try {
-                const { data: { user } } = await supabase.auth.getUser();
-                
-                // إضافة سجل إتمام المهمة، ليقوم الـ Trigger المالي على السيرفر بخصم وتوزيع العمولات فوراً
-                const { error } = await supabase
-                    .from('user_tasks')
-                    .insert([{ user_id: user.id, task_id: taskId, status: 'completed' }]);
-
-                if (error) throw error;
-
-                alert("ممتاز! تم تسجيل المهمة بنجاح وصرف أرباحك وأرباح فريقك الهرمي.");
-                fetchDailyTasks(); // إعادة التحميل وتحديث الأرصده والبطاقات
-
-            } catch (error) {
-                alert("تعذر تنفيذ المهمة. قد تكون نفذتها بالفعل مسبقاً.");
-                console.error(error.message);
-            }
-        }
-
-        fetchDailyTasks();
-    </script>
-</body>
+    }
+</script>
+  </body>
 </html>
