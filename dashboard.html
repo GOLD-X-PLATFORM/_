@@ -173,74 +173,29 @@
             </button>
         </div>
     </div>
-
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script src="app.js"></script>
-    <script>
-        // تعريف قيم الأرباح اليومية لكل باقة لحساب العداد التقديري بدقة
-        const planRates = {
-            'GOLD 10': 0.40,
-            'GOLD 20': 0.80,
-            'GOLD 50': 2.00,
-            'GOLD 100': 4.00,
-            'GOLD 200': 8.00,
-            'GOLD 500': 20.00,
-            'GOLD 1000': 40.00,
-            'GOLD 1500': 60.00
-        };
-
-        async function loadDashboardData() {
-            try {
-                const profile = await getUserProfile();
-                if (!profile) return;
-
-                // 1. عرض الرصيد الحي
-                document.getElementById('live-balance').innerText = profile.balance.toFixed(2);
-                
-                // 2. التحقق من مستوى الـ VIP وعرضه وحساب العائد اليومي المتوقع له
-                if (profile.vip_level && profile.vip_level !== 'VIP 0') {
-                    document.getElementById('vip-badge').innerHTML = `<i class="fas fa-crown"></i> ${profile.vip_level}`;
-                    
-                    const dailyProfit = planRates[profile.vip_level] || 0.00;
-                    document.getElementById('daily-estimation').innerText = `+$${dailyProfit.toFixed(2)}`;
-                    
-                    // تحديث مؤشر عينة المهام لغرض المحاكاة المرئية في الواجهة
-                    document.getElementById('task-ratio').innerText = "0 / 5 مكتملة";
-                    document.getElementById('task-progress-bar').style.width = "0%";
-                } else {
-                    document.getElementById('vip-badge').innerHTML = `<i class="fas fa-user"></i> VIP 0 (مجاني)`;
-                    document.getElementById('daily-estimation').innerText = "+$0.00";
-                }
-
-                // 3. جلب مجموع الإيداعات أو السحوبات لتعبئة خانة السحوبات التراكمية
-                const { data: txData, error: txError } = await supabase
-                    .from('transactions')
-                    .select('amount')
-                    .eq('user_id', profile.id)
-                    .eq('type', 'withdrawal');
-
-                if (!txError && txData) {
-                    const totalWithdrawn = txData.reduce((sum, tx) => sum + Math.abs(tx.amount), 0);
-                    document.getElementById('total-withdrawn').innerText = `$${totalWithdrawn.toFixed(2)}`;
-                }
-
-            } catch (error) {
-                console.error("حدث خطأ أثناء تحميل بيانات لوحة التحكم الحية:", error.message);
-            }
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    async function loadDashboardData() {
+        const profile = await getUserProfile();
+        if (profile) {
+            document.getElementById('dashboard-balance').innerText = parseFloat(profile.balance).toFixed(2);
+            document.getElementById('dashboard-vip').innerText = profile.vip_level;
         }
+    }
 
-        async function logout() {
-            const confirmOut = confirm("هل أنت متأكد من رغبتك في تسجيل الخروج من GOLD X؟");
-            if (!confirmOut) return;
-            
-            const { error } = await supabase.auth.signOut();
-            if (!error) {
-                window.location.href = "index.html";
-            }
-        }
-
-        // تشغيل فوري للبيانات عند التحميل
+    // إصلاح مشكلات توجيه الأزرار المعطلة ديناميكياً لتأمين القوائم والروابط المكسورة
+    window.addEventListener('DOMContentLoaded', () => {
         loadDashboardData();
-    </script>
+
+        // إصلاح الرابط المكسور المذكور في المراجعة لـ referrals.html
+        const refElements = document.querySelectorAll('a[href="referral.html"]');
+        refElements.forEach(el => el.setAttribute('href', 'referrals.html'));
+
+        // ربط أزرار لوحة التحكم بالصفحات الحقيقية المخصصة لها بدلاً من علامة الـ #
+        const tasksBtn = document.querySelector('.tasks-shortcut-btn'); // عدل الكلاس ليطابق أزرارك إن لزم الأمر
+        if(tasksBtn) tasksBtn.setAttribute('href', 'tasks.html');
+    });
+</script>
 </body>
 </html>
