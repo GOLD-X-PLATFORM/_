@@ -65,37 +65,92 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
-    // اربط هذه الدالة بزر تنفيذ المهمة لديك
-    // مثال: onclick="executeTask(1, 5.00)"
-    async function executeTask(taskId, reward) {
-        const btn = event.target;
-        const originalText = btn.innerText;
-        btn.disabled = true;
-        btn.innerText = 'جاري التنفيذ...';
+    // إعادة بناء آلية الجلب الديناميكي الفوري للمهام لتعرض في الواجهة
+    async function fetchDailyTasks() {
+        const container = document.getElementById('tasks-container'); // تأكد من وجود هذا الـ ID في الـ HTML لديك لتفريغ المهام داخله
+        if (!container) return;
 
         try {
-            // استدعاء الدالة الآمنة من الخادم
+            const profile = await getUserProfile();
+            if (!profile) return;
+
+            // جلب قائمة المهام المتوفرة في قاعدة البيانات بالكامل
+            const { data: tasks, error: tasksError } = await window.supabaseClient
+                .from('tasks')
+                .select('*');
+
+            if (tasksError) throw tasksError;
+
+            // جلب المهام التي أتمها المستخدم اليوم لكي لا يكررها
+            const { data: completedTasks, error: compError } = await window.supabaseClient
+                .from('user_tasks')
+                .select('task_id')
+                .eq('user_id', profile.id);
+
+            const completedIds = completedTasks ? completedTasks.map(c => c.task_id) : [];
+
+            container.innerHTML = ''; // تصفير جمل التحميل المؤقتة
+
+            if (tasks.length === 0) {
+                container.innerHTML = '<p class="no-data">لا توجد مهام متوفرة اليوم.</p>';
+                return;
+            }
+
+            tasks.forEach(task => {
+                const isDone = completedIds.includes(task.id);
+                const buttonHTML = isDone 
+                    ? `<button class="btn done" disabled>تم الإتمام بنجاح</button>` 
+                    : `<button class="btn action-btn" onclick="executeTask(${task.id})">تنفيذ المهمة (+${task.reward} USDT)</button>`;
+
+                // توليد بطاقات المهام مع الحفاظ التام على البنية العامة للواجهات
+                container.innerHTML += `
+                    <div class="task-card">
+                        <div class="task-info">
+                            <h4>${task.title}</h4>
+                            <p>${task.description}</p>
+                        </div>
+                        <div class="task-action">
+                            ${buttonHTML}
+                        </div>
+                    </div>
+                `;
+            });
+
+        } catch (err) {
+            container.innerHTML = `<p class="error-msg">خطأ أثناء جلب المهام: ${err.message}</p>`;
+        }
+    }
+
+    // دالة تنفيذ المهمة الآمنة المعدلة (تعتمد على معرف المهمة فقط، وقيمة الربح تأتي من الخادم)
+    async function executeTask(taskId) {
+        const btn = event.target;
+        btn.disabled = true;
+        btn.innerText = 'جاري التحقق وضخ الأرباح...';
+
+        try {
+            // استدعاء الـ RPC المعدل الخالي من ثغرة إرسال مبالغ المكافأة من المتصفح
             const { data: success, error } = await window.supabaseClient.rpc('complete_user_task', {
-                target_task_id: taskId,
-                reward_amount: reward
+                target_task_id: taskId
             });
 
             if (error) throw error;
 
             if (success) {
-                alert("تم تنفيذ المهمة بنجاح وإضافة الأرباح!");
+                alert("مبروك! تم التحقق من تنفيذ المهمة وتم إيداع الأرباح في رصيدك.");
                 window.location.reload();
             } else {
-                alert("لقد قمت بإتمام هذه المهمة مسبقاً!");
+                alert("فشل العملية: يبدو أنك قمت بإتمام هذه المهمة مسبقاً اليوم!");
                 btn.disabled = false;
-                btn.innerText = originalText;
+                btn.innerText = 'تنفيذ المهمة';
             }
         } catch (err) {
-            alert("خطأ: " + err.message);
+            alert("خطأ في الخادم: " + err.message);
             btn.disabled = false;
-            btn.innerText = originalText;
+            btn.innerText = 'تنفيذ المهمة';
         }
     }
+
+    window.addEventListener('DOMContentLoaded', fetchDailyTasks);
 </script>
   </body>
 </html>
