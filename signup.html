@@ -75,40 +75,55 @@
             </div>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
     document.getElementById('signup-form').addEventListener('submit', async (e) => {
         e.preventDefault();
-        const btn = document.getElementById('submit-btn'); // تأكد أن زر الإرسال يحمل هذا الـ id
-        const originalText = btn.innerText;
+        const btn = document.getElementById('submit-btn');
         btn.disabled = true;
-        btn.innerText = 'جاري إنشاء حسابك...';
+        btn.innerText = 'جاري إنشاء الحساب...';
 
-        // تأكد من مطابقة هذه الـ IDs مع حقول الإدخال في تصميمك
         const fullname = document.getElementById('fullname').value;
         const email = document.getElementById('email').value;
         const password = document.getElementById('password').value;
-        const refCode = document.getElementById('referral-code') ? document.getElementById('referral-code').value : '';
+        const refCode = document.getElementById('referral-code')?.value || '';
 
         try {
+            let referrerUUID = null;
+
+            // إذا أدخل المستخدم كود إحالة، نبحث عن صاحب الكود لجلب الـ UUID الخاص به
+            if (refCode.trim() !== "") {
+                const { data: referrerProfile, error: refError } = await window.supabaseClient
+                    .from('profiles')
+                    .select('id')
+                    .eq('my_referral_code', refCode.trim())
+                    .maybeSingle();
+                
+                if (referrerProfile) {
+                    referrerUUID = referrerProfile.id;
+                }
+            }
+
+            // إنشاء الحساب في نظام الحماية والـ Auth
             const { data, error } = await window.supabaseClient.auth.signUp({ email, password });
             if (error) throw error;
 
             if (data.user) {
-                const userRandomCode = Math.random().toString(36).substring(2, 10);
+                const userRandomCode = Math.random().toString(36).substring(2, 10).toUpperCase();
                 const currentDomain = window.location.origin + window.location.pathname.replace('signup.html', '');
                 const generatedLink = `${currentDomain}signup.html?ref=${userRandomCode}`;
 
+                // إدراج البيانات في جدول المنج الشخصي مع الـ UUID الصحيح للمُحيل
                 const { error: profileError } = await window.supabaseClient
                     .from('profiles')
                     .insert([{
                         id: data.user.id,
                         full_name: fullname,
                         balance: 0.00,
-                        vip_level: 'VIP 0', // تم توحيد التسمية هنا
-                        referred_by: refCode || null,
-                        my_referral_code: userRandomCode, // اسم العمود الصحيح
+                        vip_level: 'VIP 0',
+                        referred_by: referrerUUID, // تم التخزين كـ UUID الآن بنجاح
+                        my_referral_code: userRandomCode,
                         referral_link: generatedLink
                     }]);
 
@@ -120,10 +135,18 @@
         } catch (err) {
             alert("خطأ: " + err.message);
             btn.disabled = false;
-            btn.innerText = originalText;
+            btn.innerText = 'إنشاء حساب';
+        }
+    });
+
+    // تعبئة حقل الإحالة تلقائياً من الرابط إن وجد
+    window.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const ref = urlParams.get('ref');
+        if (ref && document.getElementById('referral-code')) {
+            document.getElementById('referral-code').value = ref;
         }
     });
 </script>
-
 </body>
 </html>
