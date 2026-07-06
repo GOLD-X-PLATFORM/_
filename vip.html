@@ -218,6 +218,8 @@
             </button>
         </div>
     </div>
+    <button onclick="purchasePlan('GOLD 10')" class="bg-[#0b3c95] hover:bg-[#05245e] text-white text-xs font-bold px-4 py-2 rounded-xl transition cursor-pointer transform active:scale-95">تفعيل الآن</button>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
@@ -229,23 +231,23 @@
         }
     }
 
-    async function buyPlan(planName, planPrice) {
-        if (!confirm(`هل أنت متأكد من رغبتك في تفعيل باقة ${planName} بقيمة ${planPrice} USDT؟`)) return;
+    // تم إصلاح اسم الدالة وتمت إزالة متغير السعر (planPrice) من العميل
+    async function purchasePlan(planName) {
+        if (!confirm(`هل أنت متأكد من رغبتك في تفعيل باقة ${planName}؟ سيتم خصم القيمة تلقائياً بناءً على تسعير الخادم.`)) return;
 
         try {
-            // استدعاء دالة RPC الآمنة على الخادم لمنع التلاعب عبر الـ Console
+            // نرسل اسم الباقة فقط. الخادم (RPC) هو من سيحدد السعر ويخصمه
             const { data: success, error } = await window.supabaseClient.rpc('purchase_vip_plan', {
-                plan_name: planName,
-                plan_price: planPrice
+                plan_name: planName
             });
 
             if (error) throw error;
 
             if (success) {
-                alert(`مبروك! تم تفعيل باقة ${planName} بنجاح وخصم القيمة.`);
+                alert(`مبروك! تم تفعيل باقة ${planName} بنجاح.`);
                 window.location.reload();
             } else {
-                alert("فشل التفعيل: رصيدك الحالي غير كافٍ لإتمام هذه المعاملة.");
+                alert("فشل التفعيل: رصيدك الحالي غير كافٍ أو حدث خطأ في العملية.");
             }
         } catch (err) {
             alert("خطأ أمني: " + err.message);
