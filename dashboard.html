@@ -175,26 +175,29 @@
     </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
+<div class="bg-gradient-to-r from-slate-900 to-slate-800 text-white rounded-2xl p-4 shadow-md flex items-center justify-between border border-slate-700 text-right">
+    <div class="space-y-1">
+        <span class="bg-amber-500 text-slate-950 font-black text-[9px] px-1.5 py-0.5 rounded uppercase tracking-tight">VIP STORE</span>
+        <h4 class="text-xs font-bold">مؤشرات احترافية للأسواق</h4>
+        <p class="text-[10px] text-slate-400">احصل على أدوات حصرية لتسهيل تداولاتك اليوم.</p>
+    </div>
+    <i class="fas fa-store text-2xl text-slate-600 opacity-80 mr-2"></i>
+</div>
+
 <script>
     async function loadDashboardData() {
         const profile = await getUserProfile();
         if (profile) {
-            document.getElementById('dashboard-balance').innerText = parseFloat(profile.balance).toFixed(2);
-            document.getElementById('dashboard-vip').innerText = profile.vip_level;
+            // تصحيح IDs
+            document.getElementById('live-balance').innerText = parseFloat(profile.balance).toFixed(2);
+            document.getElementById('vip-badge').innerHTML = `<i class="fas fa-crown"></i> ${profile.vip_level}`;
         }
     }
 
-    // إصلاح مشكلات توجيه الأزرار المعطلة ديناميكياً لتأمين القوائم والروابط المكسورة
     window.addEventListener('DOMContentLoaded', () => {
         loadDashboardData();
-
-        // إصلاح الرابط المكسور المذكور في المراجعة لـ referrals.html
         const refElements = document.querySelectorAll('a[href="referral.html"]');
         refElements.forEach(el => el.setAttribute('href', 'referrals.html'));
-
-        // ربط أزرار لوحة التحكم بالصفحات الحقيقية المخصصة لها بدلاً من علامة الـ #
-        const tasksBtn = document.querySelector('.tasks-shortcut-btn'); // عدل الكلاس ليطابق أزرارك إن لزم الأمر
-        if(tasksBtn) tasksBtn.setAttribute('href', 'tasks.html');
     });
 </script>
 </body>
