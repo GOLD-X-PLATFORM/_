@@ -119,13 +119,24 @@
         const profile = await getUserProfile();
         if (!profile) return;
 
-        // عرض كود ورابط الإحالة المباشر للمستخدم دون أخطاء الـ undefined
-        if(document.getElementById('my-referral-code')) {
-            document.getElementById('my-referral-code').innerText = profile.my_referral_code;
+        // تصحيح IDs لتطابق my-code وتفعيل النسخ
+        const codeElement = document.getElementById('my-code');
+        if(codeElement) {
+            codeElement.innerText = profile.my_referral_code;
         }
-        if(document.getElementById('referral-link')) {
-            document.getElementById('referral-link').value = profile.referral_link;
+
+        const copyBtn = document.getElementById('copy-btn');
+        if(copyBtn) {
+            copyBtn.addEventListener('click', () => {
+                const linkToCopy = profile.referral_link || profile.my_referral_code;
+                navigator.clipboard.writeText(linkToCopy).then(() => {
+                    alert("تم نسخ رابط/كود الإحالة الخاص بك بنجاح!");
+                });
+            });
         }
+        
+        // ... (باقي كود الهرمية كما هو) ...
+    }
 
         try {
             // المستوى الأول: جلب المستخدمين الذين يحملون الـ UUID الخاص بالمستخدم الحالي في خانة referred_by
