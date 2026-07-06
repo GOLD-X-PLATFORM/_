@@ -100,42 +100,42 @@
     </div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
+<input type="file" id="kyc-file" class="hidden" accept="image/jpeg, image/png, application/pdf">
+<button id="kyc-submit-btn" onclick="document.getElementById('kyc-file').click()" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-3 rounded-xl text-xs transition shadow-sm mt-4 cursor-pointer">
+    رفع بطاقة الهوية / جواز السفر
+</button>
+
 <script>
     async function loadProfilePage() {
         const profile = await getUserProfile();
         if (profile) {
-            document.getElementById('profile-name').innerText = profile.full_name;
-            document.getElementById('profile-uid').innerText = "UID: " + profile.id.substring(0,8);
+            // تصحيح IDs
+            document.getElementById('profile-username').innerText = profile.full_name;
+            document.getElementById('profile-id').innerText = profile.id;
         }
     }
 
-    document.getElementById('kyc-form')?.addEventListener('submit', async (e) => {
-        e.preventDefault();
+    // مستمع لحدث اختيار الملف لتنفيذ الرفع مباشرة
+    document.getElementById('kyc-file')?.addEventListener('change', async (e) => {
         const btn = document.getElementById('kyc-submit-btn');
-        const fileInput = document.getElementById('kyc-file');
+        const file = e.target.files[0];
         
-        if (!fileInput || fileInput.files.length === 0) {
-            alert("يرجى اختيار ملف الهوية أو جواز السفر أولاً");
-            return;
-        }
+        if (!file) return;
 
         btn.disabled = true;
-        btn.innerText = 'جاري رفع الملف وحفظه بأمان...';
+        btn.innerText = 'جاري الرفع الأمني...';
 
         try {
             const { data: { user } } = await window.supabaseClient.auth.getUser();
-            const file = fileInput.files[0];
             const fileExt = file.name.split('.').pop();
             const filePath = `${user.id}/kyc_${Date.now()}.${fileExt}`;
 
-            // رفع الملف الفعلي في الحاوية التخزينية المخصصة
             const { error: uploadError } = await window.supabaseClient.storage
                 .from('kyc-documents')
                 .upload(filePath, file);
 
             if (uploadError) throw uploadError;
 
-            // تحديث حالة الحساب الشخصي لـ قيد المراجعة وتخزين رابط الوثيقة
             const { error: updateError } = await window.supabaseClient
                 .from('profiles')
                 .update({ kyc_status: 'pending', kyc_document_url: filePath })
@@ -143,12 +143,13 @@
 
             if (updateError) throw updateError;
 
-            alert("تم رفع وثائق الهوية بنجاح، ملفك الآن قيد المراجعة الأمنية التلقائية.");
+            alert("تم رفع وثائق الهوية بنجاح، ملفك الآن قيد المراجعة.");
             window.location.reload();
         } catch (err) {
             alert("خطأ أثناء معالجة الرفع: " + err.message);
             btn.disabled = false;
-            btn.innerText = 'إرسال التوثيق';
+            btn.innerText = 'رفع بطاقة الهوية / جواز السفر';
+            e.target.value = ''; // تصفير الملف
         }
     });
 
