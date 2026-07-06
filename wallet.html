@@ -134,33 +134,51 @@
             </button>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
+<form id="deposit-verify-form" class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+    <div>
+        <label class="block text-[11px] font-bold text-slate-500 mb-1">المبلغ المودع (USDT)</label>
+        <input type="number" id="deposit-amount" required min="1" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:border-[#0b3c95] focus:bg-white transition text-left" placeholder="0.00">
+    </div>
+    <div>
+        <label class="block text-[11px] font-bold text-slate-500 mb-1">أدخل هاش المعاملة (TxID)</label>
+        <input type="text" id="tx-hash" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-700 focus:outline-none focus:border-[#0b3c95] focus:bg-white transition text-left" placeholder="لصق الـ Hash أو TxHash">
+    </div>
+    <button type="submit" id="deposit-btn" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md shadow-emerald-600/10 cursor-pointer">
+        <i class="fas fa-sync"></i> تقديم طلب التحقق
+    </button>
+</form>
+
 <script>
+    function toggleNetworkView() {
+        const net = document.getElementById('network-selector').value;
+        document.getElementById('box-bep20').classList.toggle('hidden', net !== 'bep20');
+        document.getElementById('box-erc20').classList.toggle('hidden', net !== 'erc20');
+    }
+    function copyAddress(address) {
+        navigator.clipboard.writeText(address);
+        alert('تم نسخ العنوان بنجاح: ' + address);
+    }
+
     async function loadWalletData() {
         const profile = await getUserProfile();
         if (profile) {
-            document.getElementById('user-balance').innerText = parseFloat(profile.balance).toFixed(2) + " USDT";
+            // تصحيح ID الرصيد ليتطابق مع الواجهة
+            document.getElementById('wallet-balance').innerText = parseFloat(profile.balance).toFixed(2);
             loadDepositHistory(profile.id);
         }
     }
 
-    // معالجة طلب الإيداع بأمان عبر مراجعة الإدارة (منع تزوير الأموال)
-    document.getElementById('deposit-form').addEventListener('submit', async (e) => {
+    // تصحيح ID النموذج وحقول الإدخال
+    document.getElementById('deposit-verify-form').addEventListener('submit', async (e) => {
         e.preventDefault();
         const btn = document.getElementById('deposit-btn');
         btn.disabled = true;
 
         const amount = parseFloat(document.getElementById('deposit-amount').value);
-        const txid = document.getElementById('txid-input').value.trim();
+        const txid = document.getElementById('tx-hash').value.trim();
 
-        if (isNaN(amount) || amount <= 0) {
-            alert("يرجى إدخال مبلغ صحيح");
-            btn.disabled = false;
-            return;
-        }
-        if (txid.length < 10) {
-            alert("يرجى إدخال هاش معاملة (TxID) صحيح للتحقق");
+        if (isNaN(amount) || amount <= 0 || txid.length < 10) {
+            alert("يرجى إدخال بيانات صحيحة");
             btn.disabled = false;
             return;
         }
@@ -168,22 +186,21 @@
         try {
             const { data: { user } } = await window.supabaseClient.auth.getUser();
             
-            // إدراج المعاملة في جدول الـ deposits بحالة 'pending' بدلاً من إضافة رصيد فوري غير حقيقي
             const { error } = await window.supabaseClient
                 .from('deposits')
                 .insert([{
                     user_id: user.id,
                     amount: amount,
                     txid: txid,
-                    status: 'pending' // الإدارة تفحص السجل وتفعله يدوياً من لوحة التحكم
+                    status: 'pending' 
                 }]);
 
             if (error) throw error;
 
-            alert("تم إرسال طلب الإيداع بنجاح. سيتم فحص الـ TxID يدويًا وإضافة الرصيد فور التأكيد المالي.");
+            alert("تم إرسال طلب الإيداع للمراجعة.");
             window.location.reload();
         } catch (err) {
-            alert("خطأ أثناء معالجة الطلب: " + err.message);
+            alert("خطأ: " + err.message);
             btn.disabled = false;
         }
     });
@@ -196,17 +213,22 @@
             .order('created_at', { ascending: false });
 
         if (!error && data) {
-            const container = document.getElementById('history-container');
+            // تصحيح ID حاوية السجل
+            const container = document.getElementById('transactions-log');
             container.innerHTML = '';
             data.forEach(item => {
-                let statusBadge = item.status === 'approved' ? '<span class="badge success">مكتمل</span>' : 
-                                  item.status === 'rejected' ? '<span class="badge danger">مرفوض</span>' : 
-                                                               '<span class="badge warning">قيد المراجعة</span>';
+                let statusColor = item.status === 'approved' ? 'text-emerald-600' : 
+                                  item.status === 'rejected' ? 'text-rose-600' : 'text-amber-600';
+                let statusText = item.status === 'approved' ? 'مكتمل' : 
+                                 item.status === 'rejected' ? 'مرفوض' : 'قيد المراجعة';
+                
                 container.innerHTML += `
-                    <div class="history-item">
-                        <div><strong>${item.amount} USDT</strong></div>
-                        <div style="font-size:12px; color:gray;">TxID: ${item.txid}</div>
-                        <div>${statusBadge}</div>
+                    <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                        <div>
+                            <span class="block text-xs font-bold text-slate-800">+${item.amount} USDT</span>
+                            <span class="block text-[10px] text-slate-400 font-mono mt-0.5">Tx: ${item.txid.substring(0,8)}...</span>
+                        </div>
+                        <span class="text-[10px] font-bold ${statusColor} bg-white px-2 py-1 rounded shadow-sm">${statusText}</span>
                     </div>
                 `;
             });
