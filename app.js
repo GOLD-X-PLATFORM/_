@@ -41,16 +41,33 @@ function updateUI(elementId, value) {
     if (el) el.innerText = value;
 }
 
-// حماية الصفحات
+// حماية الصفحات المطور - كاشف الأخطاء الذكي
 document.addEventListener("DOMContentLoaded", async () => {
     const protectedPages = ["dashboard.html", "wallet.html", "withdraw.html", "tasks.html", "referrals.html", "profile.html", "vip.html"];
+    
     if (protectedPages.some(page => window.location.pathname.includes(page))) {
-        const profile = await getUserProfile();
-        if (!profile) window.location.href = "signin.html";
+        // 1. التحقق من وجود حساب مسجل أولاً (هذا فقط ما يحدد الطرد لصفحة تسجيل الدخول)
+        const { data: { user }, error: authError } = await window.supabaseClient.auth.getUser();
+        
+        if (authError || !user) {
+            console.log("لا توجد جلسة نشطة، تحويل إلى تسجيل الدخول.");
+            window.location.href = "signin.html";
+            return; // إنهاء التنفيذ هنا
+        }
+        
+        // 2. إذا كان المستخدم مسجلاً، نحاول جلب بيانات البروفايل الخاص به
+        const { data: profile, error: profileError } = await window.supabaseClient
+            .from('profiles')
+            .select('*')
+            .eq('id', user.id)
+            .single();
+            
+        if (profileError) {
+            console.error("خطأ في قاعدة البيانات:", profileError.message);
+            // إظهار تنبيه يشرح الثغرة أو المشكلة في قاعدة البيانات بدلاً من الطرد العشوائي
+            alert("⚠️ تنبيه أمني من قاعدة البيانات:\n" + 
+                  "أنت مسجل دخول بنجاح، ولكن فشلنا في جلب بياناتك الممالية.\n" + 
+                  "السبب: " + profileError.message);
+        }
     }
 });
-
-async function handleLogout() {
-    await window.supabaseClient.auth.signOut();
-    window.location.href = "index.html";
-}
