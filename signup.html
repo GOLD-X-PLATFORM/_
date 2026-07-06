@@ -60,10 +60,13 @@
                     </div>
                 </div>
 
-                <div class="flex items-start gap-2 pt-1">
-                    <input type="checkbox" required id="agree" class="mt-0.5 accent-[#0b3c95]">
-                    <label for="agree" class="text-[10px] text-slate-400 leading-tight">أوافق على جميع شروط وقوانين منصة GOLD X الاستثمارية التابعة لـ DEX Family.</label>
-                </div>
+             <!-- كود مربع حيز الشروط والقوانين المعدل والمحمي -->
+<div class="flex items-center justify-start gap-2 my-4">
+    <input type="checkbox" id="agree-terms" required class="w-4 h-4 rounded bg-gray-800 border-gray-700 text-yellow-600 focus:ring-0 cursor-pointer">
+    <label for="agree-terms" class="text-sm text-gray-300 cursor-pointer select-none">
+        أوافق على <a href="terms.html" class="underline gold-text font-bold hover:text-yellow-500 transition-colors">جميع الشروط والقوانين</a> الخاصة بمنصة GOLD X الاستثمارية.
+    </label>
+</div>
 
                 <button type="submit" id="submit-btn" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md cursor-pointer transform active:scale-95">
                     <i class="fas fa-user-plus ml-1"></i> إنشاء الحساب وتفعيله
