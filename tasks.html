@@ -67,7 +67,8 @@
 <script>
     // إعادة بناء آلية الجلب الديناميكي الفوري للمهام لتعرض في الواجهة
     async function fetchDailyTasks() {
-        const container = document.getElementById('tasks-container'); // تأكد من وجود هذا الـ ID في الـ HTML لديك لتفريغ المهام داخله
+        // استبدل السطر القديم في دالة fetchDailyTasks بهذا السطر:
+const container = document.getElementById('tasks-list');
         if (!container) return;
 
         try {
