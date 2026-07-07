@@ -22,138 +22,171 @@
             <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
                 <i class="fas fa-arrow-right"></i>
             </a>
-            <h1 class="text-lg font-bold">الملف الشخصي</h1>
-            <button onclick="logout()" class="text-lg p-2 hover:bg-red-500/20 text-red-300 rounded-full transition cursor-pointer">
-                <i class="fas fa-sign-out-alt"></i>
-            </button>
-        </div>
-
-        <div class="mt-6 flex flex-col items-center justify-center">
-            <div class="w-16 h-16 rounded-full bg-slate-200 border-4 border-white/20 flex items-center justify-center text-slate-700 text-2xl font-bold shadow-inner">
-                <i class="fas fa-user text-slate-400"></i>
-            </div>
-            <h2 id="profile-username" class="text-base font-bold mt-2">جاري التحميل...</h2>
-            <p id="profile-email" class="text-xs text-blue-200 mt-0.5">user@example.com</p>
+            <h1 class="text-lg font-bold">الحساب والتوثيق</h1>
+            <div class="w-10"></div>
         </div>
     </div>
 
-    <div class="px-4 -mt-8 max-w-md mx-auto relative z-10 space-y-4">
+    <div class="max-w-md mx-auto mt-[-2rem] px-4 flex flex-col gap-4 relative z-10">
         
-        <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100">
-            <h3 class="font-bold text-slate-900 text-sm text-right mb-3 flex items-center gap-1.5 justify-end">
-                توثيق الحساب (KYC) <i class="fas fa-shield-alt text-blue-600"></i>
-            </h3>
-            
-            <div class="bg-slate-50 border border-slate-100 rounded-xl p-3 flex items-center justify-between">
-                <div class="text-right">
-                    <span class="text-xs font-bold text-slate-500 block">حالة التوثيق الحالي</span>
-                    <span id="kyc-status-text" class="text-xs font-black text-amber-600 mt-1 block">غير موثق</span>
+        <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 flex flex-col gap-4">
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                <div class="bg-blue-100 text-blue-600 w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                    <i class="fas fa-user"></i>
                 </div>
-                <div id="kyc-status-icon" class="w-9 h-9 bg-amber-50 text-amber-600 rounded-full flex items-center justify-center text-sm">
-                    <i class="fas fa-user-clock"></i>
+                <div>
+                    <h2 id="profile-name" class="font-bold text-lg text-slate-900">جاري التحميل...</h2>
+                    <p class="text-xs text-slate-400">معلومات الحساب الشخصي</p>
+                </div>
+            </div>
+            
+            <div class="grid grid-cols-2 gap-3 text-sm">
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="block text-xs text-slate-400 mb-0.5">مستوى الـ VIP</span>
+                    <strong id="profile-vip" class="text-slate-800">--</strong>
+                </div>
+                <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                    <span class="block text-xs text-slate-400 mb-0.5">معرف الحساب (UID)</span>
+                    <strong id="profile-uid" class="text-slate-800 text-xs block truncate">--</strong>
+                </div>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 flex flex-col gap-4">
+            <div class="flex items-center gap-3 border-b border-slate-100 pb-3">
+                <div class="bg-amber-100 text-amber-600 w-12 h-12 rounded-full flex items-center justify-center text-xl">
+                    <i class="fas fa-id-card"></i>
+                </div>
+                <div>
+                    <h2 class="font-bold text-base text-slate-900">توثيق الحساب (KYC)</h2>
+                    <p class="text-xs text-slate-400">حماية وتأمين العمليات المالية والسحب</p>
                 </div>
             </div>
 
-            <button id="kyc-btn" onclick="startKYC()" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-3 rounded-xl text-xs transition shadow-sm mt-4 cursor-pointer">
-                رفع بطاقة الهوية / جواز السفر
-            </button>
+            <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="text-sm text-slate-500">حالة التوثيق الحالي:</span>
+                <div id="kyc-status-text" class="text-sm font-bold text-slate-700">جاري التحميل...</div>
+            </div>
+
+            <div id="kyc-upload-section" class="mt-2 flex flex-col gap-3">
+                <p class="text-xs text-slate-500 bg-blue-50 text-blue-700 p-2.5 rounded-xl border border-blue-100">
+                    <i class="fas fa-info-circle ml-1"></i> يرجى رفع صورة واضحة ومقروءة لبطاقة الهوية الوطنية أو جواز السفر الخاص بك لبدء عملية المراجعة وتفعيل الحساب بشكل كامل.
+                </p>
+                
+                <input type="file" id="kyc-file" accept="image/*,application/pdf" class="hidden">
+                
+                <button id="kyc-submit-btn" onclick="document.getElementById('kyc-file').click()" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 px-4 rounded-xl shadow-md transition-all duration-200 cursor-pointer flex items-center justify-center gap-2">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <span>رفع بطاقة الهوية / جواز السفر</span>
+                </button>
+            </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-md p-5 border border-slate-100 space-y-3.5 text-right">
-            <h3 class="font-bold text-slate-900 text-sm mb-1 flex items-center gap-1.5 justify-end">
-                إعدادات الأمان <i class="fas fa-lock-open text-slate-500"></i>
-            </h3>
-            
-            <div class="border-b border-slate-50 pb-2.5">
-                <span class="text-[10px] text-slate-400 block">معرّف المستخدم المالي (ID)</span>
-                <span id="profile-id" class="text-xs font-mono font-bold text-slate-700 block mt-0.5">uuid-loading...</span>
-            </div>
-            
-            <div>
-                <span class="text-[10px] text-slate-400 block">تاريخ الانضمام للمنصة</span>
-                <span id="profile-joined" class="text-xs font-bold text-slate-700 block mt-0.5">2026/01/01</span>
-            </div>
-        </div>
+        <button onclick="logout()" class="w-full bg-red-50 hover:bg-red-100 text-red-600 font-bold py-3 px-4 rounded-xl shadow-sm transition-all border border-red-100 cursor-pointer flex items-center justify-center gap-2">
+            <i class="fas fa-sign-out-alt"></i>
+            <span>تسجيل الخروج من الحساب</span>
+        </button>
 
     </div>
 
-    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
-        <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
-            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
-                <i class="fas fa-file-alt text-lg"></i><span class="text-[10px]">التقارير</span>
-            </button>
-            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
-                <i class="fas fa-briefcase text-lg"></i><span class="text-[10px]">المهام</span>
-            </button>
-            <div class="relative -mt-6 flex justify-center">
-                <a href="dashboard.html" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-blue-600/40 border-4 border-white flex justify-center items-center">
-                    <i class="fas fa-home"></i>
-                </a>
-            </div>
-            <button class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
-                <i class="fas fa-question-circle text-lg"></i><span class="text-[10px]">المساعدة</span>
-            </button>
-            <button class="text-[#0b3c95] flex flex-col items-center gap-1 cursor-pointer">
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-200 shadow-xl px-4 py-2 z-50">
+        <div class="flex justify-around items-center max-w-md mx-auto">
+            <a href="dashboard.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-home text-lg"></i><span class="text-[10px]">الرئيسية</span>
+            </a>
+            <a href="wallet.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-wallet text-lg"></i><span class="text-[10px]">المحفظة</span>
+            </a>
+            <a href="tasks.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-tasks text-lg"></i><span class="text-[10px]">المهام</span>
+            </a>
+            <a href="vip.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-gem text-lg"></i><span class="text-[10px]">VIP</span>
+            </a>
+            <a href="profile.html" class="text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
                 <i class="fas fa-user-circle text-lg"></i><span class="text-[10px]">الحساب</span>
-            </button>
+            </a>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
-<input type="file" id="kyc-file" class="hidden" accept="image/jpeg, image/png, application/pdf">
-<button id="kyc-submit-btn" onclick="document.getElementById('kyc-file').click()" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-3 rounded-xl text-xs transition shadow-sm mt-4 cursor-pointer">
-    رفع بطاقة الهوية / جواز السفر
-</button>
 
-<script>
-    async function loadProfilePage() {
-        const profile = await getUserProfile();
-        if (profile) {
-            // تصحيح IDs
-            document.getElementById('profile-username').innerText = profile.full_name;
-            document.getElementById('profile-id').innerText = profile.id;
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="app.js"></script>
+    <script>
+        async function loadProfileData() {
+            const profile = await getUserProfile();
+            if (profile) {
+                document.getElementById('profile-name').innerText = profile.full_name || "مستخدم جديد";
+                document.getElementById('profile-vip').innerText = profile.vip_level || "VIP 0";
+                document.getElementById('profile-uid').innerText = profile.id;
+                
+                const statusEl = document.getElementById('kyc-status-text');
+                const uploadSection = document.getElementById('kyc-upload-section');
+
+                // التحكم الذكي بواجهة المستخدم بناء على البيانات الحقيقية من الخادم لـ Supabase
+                if (profile.kyc_status === 'approved') {
+                    statusEl.innerHTML = '<span class="text-green-600 flex items-center gap-1"><i class="fas fa-check-circle"></i> تم التوثيق بنجاح</span>';
+                    if (uploadSection) uploadSection.remove(); // إخفاء حقل الرفع لحماية البيانات عند اكتمال التوثيق
+                } else if (profile.kyc_status === 'pending') {
+                    statusEl.innerHTML = '<span class="text-amber-600 flex items-center gap-1"><i class="fas fa-clock"></i> قيد المراجعة الأمنية</span>';
+                    if (uploadSection) uploadSection.remove(); // إخفاء حقل الرفع مؤقتاً لحين انتهاء المراجعة الإدارية
+                } else if (profile.kyc_status === 'rejected') {
+                    statusEl.innerHTML = '<span class="text-red-600 flex items-center gap-1"><i class="fas fa-exclamation-circle"></i> تم الرفض، يرجى إعادة الرفع</span>';
+                } else {
+                    statusEl.innerHTML = '<span class="text-slate-400">غير موثق</span>';
+                }
+            }
         }
-    }
 
-    // مستمع لحدث اختيار الملف لتنفيذ الرفع مباشرة
-    document.getElementById('kyc-file')?.addEventListener('change', async (e) => {
-        const btn = document.getElementById('kyc-submit-btn');
-        const file = e.target.files[0];
-        
-        if (!file) return;
+        // مستمع لحدث اختيار الملف لتنفيذ الرفع المباشر والآمن فور الاختيار
+        document.getElementById('kyc-file')?.addEventListener('change', async (e) => {
+            const btn = document.getElementById('kyc-submit-btn');
+            const file = e.target.files[0];
+            
+            if (!file) return;
 
-        btn.disabled = true;
-        btn.innerText = 'جاري الرفع الأمني...';
+            btn.disabled = true;
+            btn.innerText = 'جاري الرفع الأمني...';
 
-        try {
-            const { data: { user } } = await window.supabaseClient.auth.getUser();
-            const fileExt = file.name.split('.').pop();
-            const filePath = `${user.id}/kyc_${Date.now()}.${fileExt}`;
+            try {
+                const { data: { user } } = await window.supabaseClient.auth.getUser();
+                const fileExt = file.name.split('.').pop();
+                const filePath = `${user.id}/kyc_${Date.now()}.${fileExt}`;
 
-            const { error: uploadError } = await window.supabaseClient.storage
-                .from('kyc-documents')
-                .upload(filePath, file);
+                // رفع الملف لـ Supabase Storage Bucket المسمى kyc-documents
+                const { error: uploadError } = await window.supabaseClient.storage
+                    .from('kyc-documents')
+                    .upload(filePath, file);
 
-            if (uploadError) throw uploadError;
+                if (uploadError) throw uploadError;
 
-            const { error: updateError } = await window.supabaseClient
-                .from('profiles')
-                .update({ kyc_status: 'pending', kyc_document_url: filePath })
-                .eq('id', user.id);
+                // تحديث حالة الحساب الشخصي لجدول المستخدمين
+                const { error: updateError } = await window.supabaseClient
+                    .from('profiles')
+                    .update({ kyc_status: 'pending', kyc_document_url: filePath })
+                    .eq('id', user.id);
 
-            if (updateError) throw updateError;
+                if (updateError) throw updateError;
 
-            alert("تم رفع وثائق الهوية بنجاح، ملفك الآن قيد المراجعة.");
-            window.location.reload();
-        } catch (err) {
-            alert("خطأ أثناء معالجة الرفع: " + err.message);
-            btn.disabled = false;
-            btn.innerText = 'رفع بطاقة الهوية / جواز السفر';
-            e.target.value = ''; // تصفير الملف
+                alert("تم رفع وثائق الهوية بنجاح، ملفك الآن قيد المراجعة.");
+                window.location.reload();
+            } catch (err) {
+                alert("خطأ أثناء معالجة الرفع: " + err.message);
+                btn.disabled = false;
+                btn.innerText = 'رفع بطاقة الهوية / جواز السفر';
+                e.target.value = ''; // تصفير حقل اختيار الملف لإتاحة إعادة المحاولة
+            }
+        });
+
+        // دالة تسجيل الخروج الأمن
+        async function logout() {
+            if (confirm("هل أنت متأكد من رغبتك في تسجيل الخروج؟")) {
+                await window.supabaseClient.auth.signOut();
+                window.location.href = "signin.html";
+            }
         }
-    });
 
-    window.addEventListener('DOMContentLoaded', loadProfilePage);
-</script>
+        // بدء تشغيل وتعبئة البيانات فور تحميل الهيكل
+        window.addEventListener('DOMContentLoaded', loadProfileData);
+    </script>
 </body>
 </html>
