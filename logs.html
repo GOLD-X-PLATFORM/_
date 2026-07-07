@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - التقارير والسجلات المالية</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .header-bg {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
+
+    <!-- الجزء العلوي: الهيدر -->
+    <div class="header-bg text-white px-6 pt-6 pb-14 shadow-lg text-center relative">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold">التقارير والسجلات المالي</h1>
+            <div class="w-9 h-9 opacity-0"></div>
+        </div>
+        
+        <!-- التبديل بين سجلات الأموال وسجلات المهام -->
+        <div class="max-w-md mx-auto mt-5 bg-white/10 p-1 rounded-xl flex">
+            <button onclick="switchTab('financial')" id="tab-financial" class="w-1/2 text-xs font-bold py-2 rounded-lg bg-white text-[#0b3c95] shadow transition cursor-pointer">السجل المالي</button>
+            <button onclick="switchTab('tasks')" id="tab-tasks" class="w-1/2 text-xs font-bold py-2 rounded-lg text-white/80 hover:text-white transition cursor-pointer">تقارير المهام</button>
+        </div>
+    </div>
+
+    <!-- الحاوية الأساسية لعرض البيانات والمجموعات السجلية -->
+    <div class="px-4 -mt-4 max-w-md mx-auto relative z-10">
+
+        <!-- القسم الأول: سجلات المعاملات المالية (شحن، سحب) -->
+        <div id="financial-section" class="space-y-3">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-right">
+                <span class="text-[10px] text-slate-400 font-bold block mb-3">جميع العمليات المالية السابقة</span>
+                <div id="financial-logs-container" class="space-y-2.5">
+                    <!-- نموذج لعرض عملية شحن رصيد فارغة تملأ من الـ JS -->
+                    <div class="text-center py-8 text-slate-400 text-xs">
+                        <i class="fas fa-receipt text-3xl mb-2 opacity-40 block"></i>
+                        لا توجد عمليات مالية مسجلة حالياً بحسابك.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- القسم الثاني: سجلات وتقارير أرباح المهام اليومية -->
+        <div id="tasks-section" class="space-y-3 hidden">
+            <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 text-right">
+                <span class="text-[10px] text-slate-400 font-bold block mb-3">سجل تدفق أرباح نقرات المهام اليومية</span>
+                <div id="task-logs-container" class="space-y-2.5">
+                    <div class="text-center py-8 text-slate-400 text-xs">
+                        <i class="fas fa-history text-3xl mb-2 opacity-40 block"></i>
+                        لم تقم بتنفيذ أي مهام استثمارية اليوم بعد.
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- قائمة التنقل السفلية الموحدة -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
+        <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
+            <a href="logs.html" class="text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-file-alt text-lg"></i><span class="text-[10px]">التقارير</span>
+            </a>
+            <a href="tasks.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-briefcase text-lg"></i><span class="text-[10px]">المهام</span>
+            </a>
+            <div class="relative -mt-6 flex justify-center">
+                <a href="dashboard.html" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-blue-600/40 border-4 border-white flex justify-center items-center">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+            <a href="support.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-question-circle text-lg"></i><span class="text-[10px]">المساعدة</span>
+            </a>
+            <a href="profile.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-user-circle text-lg"></i><span class="text-[10px]">الحساب</span>
+            </a>
+        </div>
+    </div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="app.js"></script>
+<script>
+    // التبديل السلس بين أقسام التبويبات الفنية
+    function switchTab(type) {
+        const finTab = document.getElementById('tab-financial');
+        const taskTab = document.getElementById('tab-tasks');
+        const finSec = document.getElementById('financial-section');
+        const taskSec = document.getElementById('tasks-section');
+
+        if(type === 'financial') {
+            finTab.className = "w-1/2 text-xs font-bold py-2 rounded-lg bg-white text-[#0b3c95] shadow transition cursor-pointer";
+            taskTab.className = "w-1/2 text-xs font-bold py-2 rounded-lg text-white/80 hover:text-white transition cursor-pointer";
+            finSec.classList.remove('hidden');
+            taskSec.classList.add('hidden');
+        } else {
+            taskTab.className = "w-1/2 text-xs font-bold py-2 rounded-lg bg-white text-[#0b3c95] shadow transition cursor-pointer";
+            finTab.className = "w-1/2 text-xs font-bold py-2 rounded-lg text-white/80 hover:text-white transition cursor-pointer";
+            taskSec.classList.remove('hidden');
+            finSec.classList.add('hidden');
+        }
+    }
+</script>
+</body>
+</html>
