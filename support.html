@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>GOLD X - مركز الدعم والمساعدة</title>
+    <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        body { background-color: #f8fafc; }
+        .header-bg {
+            background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
+            border-bottom-left-radius: 2rem;
+            border-bottom-right-radius: 2rem;
+        }
+    </style>
+</head>
+<body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
+
+    <!-- الهيدر العلوي -->
+    <div class="header-bg text-white px-6 pt-6 pb-14 shadow-lg text-center relative">
+        <div class="flex justify-between items-center max-w-md mx-auto">
+            <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
+                <i class="fas fa-arrow-right"></i>
+            </a>
+            <h1 class="text-lg font-bold">مركز الدعم والمساعدة</h1>
+            <div class="w-9 h-9 opacity-0"></div> <!-- موازن الهيكل -->
+        </div>
+        <p class="text-xs text-blue-200 mt-3 max-w-xs mx-auto">نحن هنا لمساعدتك في حل أي مشكلة تواجهك على مدار الساعة.</p>
+    </div>
+
+    <!-- حاوية المحتوى الرئيسي -->
+    <div class="px-4 -mt-6 max-w-md mx-auto space-y-4 relative z-10">
+        
+        <!-- بطاقة التواصل السريع عبر التلجرام -->
+        <div class="bg-white rounded-2xl p-4 shadow-md border border-slate-100 text-center space-y-3">
+            <div class="w-12 h-12 bg-sky-50 text-sky-500 rounded-full flex items-center justify-center text-2xl mx-auto">
+                <i class="fab fa-telegram-plane"></i>
+            </div>
+            <div>
+                <h3 class="font-bold text-sm text-slate-900">خدمة العملاء الفورية عبر تلجرام</h3>
+                <p class="text-[11px] text-slate-400 mt-0.5">تحدث مباشرة مع أحد ممثلي الدعم الفني لحل مشكلتك فوراً.</p>
+            </div>
+            <!-- استبدل الرابط أدناه برابط حساب التلجرام الخاص بك -->
+            <a href="https://t.me/your_telegram_support_handle" target="_blank" class="block w-full bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold py-2.5 rounded-xl transition text-center shadow-sm">
+                <i class="fab fa-telegram ml-1"></i> فتح محادثة تلجرام
+            </a>
+        </div>
+
+        <!-- نموذج إرسال تذكرة دعم إلى الإيميل الخاص بالموقع -->
+        <div class="bg-white rounded-2xl p-5 shadow-md border border-slate-100 text-right space-y-4">
+            <h3 class="font-black text-sm text-slate-900 border-b border-slate-50 pb-2"><i class="fas fa-envelope-open-text text-blue-600 ml-1"></i> إرسال تذكرة دعم للموقع</h3>
+            
+            <form onsubmit="sendSupportEmail(event)" class="space-y-3">
+                <!-- اختيار نوع المشكلة -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">ما هي طبيعة المشكلة؟</label>
+                    <select id="problem-type" class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-blue-500 text-slate-700">
+                        <option value="مشكلة في الإيداع">مشكلة في الإيداع شحن الرصيد</option>
+                        <option value="مشكلة في سحب الأرباح">مشكلة في سحب الأرباح</option>
+                        <option value="تفعيل باقات VIP">استفسار أو مشكلة في تفعيل باقات VIP</option>
+                        <option value="مشكلة في تنفيذ المهام">مشكلة في تنفيذ المهام اليومية</option>
+                        <option value="أمان الحساب وكلمة المرور">حماية الحساب وتغيير البيانات</option>
+                        <option value="أخرى">مشكلة أخرى غير مذكورة</option>
+                    </select>
+                </div>
+
+                <!-- وصف المشكلة بدقة -->
+                <div>
+                    <label class="block text-[11px] font-bold text-slate-500 mb-1">صف مشكلتك بالتفصيل</label>
+                    <textarea id="problem-description" rows="4" placeholder="يرجى كتابة تفاصيل المشكلة، رقم المعاملة إن وجد، أو أي معلومات تساعدنا على خدمتك بشكل أسرع..." class="w-full bg-slate-50 border border-slate-200 text-xs rounded-xl p-3 focus:outline-none focus:border-blue-500 text-slate-700 resize-none"></textarea>
+                </div>
+
+                <!-- زر تجميع البيانات وإرسال الإيميل للموقع -->
+                <button type="submit" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white text-xs font-bold py-2.5 rounded-xl transition text-center shadow shadow-blue-900/20 cursor-pointer">
+                    <i class="fas fa-paper-plane ml-1"></i> إرسال تفاصيل المشكلة للإيميل
+                </button>
+            </form>
+
+            <div class="relative flex py-2 items-center">
+                <div class="flex-grow border-t border-slate-100"></div>
+                <span class="flex-shrink mx-3 text-[10px] text-slate-300 font-bold">أو</span>
+                <div class="flex-grow border-t border-slate-100"></div>
+            </div>
+
+            <!-- زر ينقل العميل للإيميل الخاص بنا مباشرة بشكل مفتوح -->
+            <!-- استبدل support@goldx.com ببريدك الإلكتروني الحقيقي للموقع -->
+            <a href="mailto:support@goldx.com?subject=GOLD%20X%20Support%20Request" class="block w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition text-center border border-slate-200/60">
+                <i class="fas fa-at ml-1"></i> مراسلة البريد الإلكتروني مباشرة
+            </a>
+        </div>
+
+    </div>
+
+    <!-- قائمة التنقل السفلية الموحدة -->
+    <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
+        <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
+            <a href="logs.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-file-alt text-lg"></i><span class="text-[10px]">التقارير</span>
+            </a>
+            <a href="tasks.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-briefcase text-lg"></i><span class="text-[10px]">المهام</span>
+            </a>
+            <div class="relative -mt-6 flex justify-center">
+                <a href="dashboard.html" class="w-14 h-14 bg-blue-600 text-white rounded-full flex items-center justify-center text-xl shadow-lg shadow-blue-600/40 border-4 border-white flex justify-center items-center">
+                    <i class="fas fa-home"></i>
+                </a>
+            </div>
+            <a href="support.html" class="text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-question-circle text-lg"></i><span class="text-[10px]">المساعدة</span>
+            </a>
+            <a href="profile.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
+                <i class="fas fa-user-circle text-lg"></i><span class="text-[10px]">الحساب</span>
+            </a>
+        </div>
+    </div>
+
+<script>
+    function sendSupportEmail(event) {
+        event.preventDefault();
+        
+        // استبدل هذا البريد الإلكتروني ببريد موقعك الرسمي لاستقبال الرسائل
+        const siteEmail = "support@goldx.com"; 
+        
+        const problemType = document.getElementById('problem-type').value;
+        const description = document.getElementById('problem-description').value;
+
+        if (!description.trim()) {
+            alert("يرجى كتابة وصف دقيق للمشكلة التي تواجهك قبل الإرسال.");
+            return;
+        }
+
+        // بناء وتجهيز عنوان ونص الرسالة للإيميل تلقائياً
+        const subject = encodeURIComponent(`دعم GOLD X: ${problemType}`);
+        const body = encodeURIComponent(`مرحباً فريق دعم منصة GOLD X،\n\nلقد واجهت المشكلة التالية:\n- نوع المشكلة: ${problemType}\n\nالتفاصيل الموضحة:\n${description}\n\nيرجى مراجعة حسابي وحل المشكلة في أقرب وقت.`);
+
+        // فتح عميل البريد الإلكتروني للمستخدم ومملوء بالبيانات تلقائياً
+        window.location.href = `mailto:${siteEmail}?subject=${subject}&body=${body}`;
+    }
+</script>
+</body>
+</html>
