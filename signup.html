@@ -60,13 +60,12 @@
                     </div>
                 </div>
 
-             <!-- كود مربع حيز الشروط والقوانين المعدل والمحمي -->
-<div class="flex items-center justify-start gap-2 my-4">
-    <input type="checkbox" id="agree-terms" required class="w-4 h-4 rounded bg-gray-800 border-gray-700 text-yellow-600 focus:ring-0 cursor-pointer">
-    <label for="agree-terms" class="text-sm text-gray-300 cursor-pointer select-none">
-        أوافق على <a href="disclaimer.html" class="underline gold-text font-bold hover:text-yellow-500 transition-colors">جميع الشروط والقوانين</a> الخاصة بمنصة GOLD X الاستثمارية.
-    </label>
-</div>
+                <div class="flex items-center justify-start gap-2 my-4">
+                    <input type="checkbox" id="agree-terms" required class="w-4 h-4 rounded bg-slate-50 border-slate-200 text-[#0b3c95] focus:ring-0 cursor-pointer">
+                    <label for="agree-terms" class="text-xs font-medium text-slate-600 cursor-pointer select-none">
+                        أوافق على <a href="disclaimer.html" class="underline text-blue-600 font-bold hover:text-blue-800 transition-colors">جميع الشروط والقوانين</a> الخاصة بمنصة GOLD X الاستثمارية.
+                    </label>
+                </div>
 
                 <button type="submit" id="submit-btn" class="w-full bg-[#0b3c95] hover:bg-[#05245e] text-white font-bold py-2.5 rounded-xl text-xs transition shadow-md cursor-pointer transform active:scale-95">
                     <i class="fas fa-user-plus ml-1"></i> إنشاء الحساب وتفعيله
@@ -78,92 +77,94 @@
             </div>
         </div>
     </div>
+
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="app.js"></script>
-<script>
-    document.getElementById('signup-form').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const btn = document.querySelector('button[type="submit"]');
-    const originalText = btn.innerText;
-    btn.disabled = true;
-    btn.innerText = 'جاري الإنشاء...';
+    <script src="app.js"></script>
+    <script>
+        document.getElementById('signup-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const btn = document.querySelector('button[type="submit"]');
+            const originalText = btn.innerText;
+            btn.disabled = true;
+            btn.innerText = 'جاري الإنشاء...';
 
-    // جلب قيم الحقول
-    const fullname = document.getElementById('fullname').value.trim();
-    const email = document.getElementById('email').value.trim();
-    const password = document.getElementById('password').value;
-    const referralInput = document.getElementById('referral-code');
-    const referralCode = referralInput ? referralInput.value.trim() : '';
+            // جلب قيم الحقول
+            const fullname = document.getElementById('fullname').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const password = document.getElementById('password').value;
+            const referralInput = document.getElementById('referral-code');
+            const referralCode = referralInput ? referralInput.value.trim() : '';
 
-    try {
-        // 1. إنشاء الحساب في نظام التوثيق
-        const { data, error: authError } = await window.supabaseClient.auth.signUp({ email, password });
-        if (authError) throw authError;
-        if (!data.user) throw new Error("فشل إنشاء الحساب، يرجى المحاولة لاحقاً.");
+            try {
+                // 1. إنشاء الحساب في نظام التوثيق الخاص بـ Supabase Auth
+                const { data, error: authError } = await window.supabaseClient.auth.signUp({ email, password });
+                if (authError) throw authError;
+                if (!data.user) throw new Error("فشل إنشاء الحساب، يرجى المحاولة لاحقاً.");
 
-        // 2. معالجة الإحالة (إن وجدت)
-        let referrerUUID = null;
-        if (referralCode) {
-            const { data: refData, error: refError } = await window.supabaseClient
-                .from('profiles')
-                .select('id')
-                .eq('my_referral_code', referralCode)
-                .single();
-            
-            if (refData && !refError) {
-                referrerUUID = refData.id;
+                // 2. معالجة الإحالة عبر دالة RPC الأمانية لتفادي حظر سياسات الـ RLS
+                let referrerUUID = null;
+                if (referralCode) {
+                    const { data: referrerId, error: refError } = await window.supabaseClient
+                        .rpc('get_user_id_by_referral_code', { p_code: referralCode });
+                    
+                    if (refError) {
+                        console.error("خطأ أثناء التحقق من كود الإحالة:", refError.message);
+                    }
+
+                    if (referrerId) {
+                        referrerUUID = referrerId;
+                    }
+                }
+
+                // 3. إنشاء كود إحالة فريد خاص بالمستخدم الجديد
+                const userRandomCode = 'GX' + Math.floor(100000 + Math.random() * 900000);
+                const currentDomain = window.location.origin + window.location.pathname.replace('signup.html', '');
+                const generatedLink = `${currentDomain}signup.html?ref=${userRandomCode}`;
+
+                // 4. تجهيز بيانات الملف الشخصي (Profiles)
+                const profileData = {
+                    id: data.user.id,
+                    full_name: fullname,
+                    balance: 0.00,
+                    vip_level: 'VIP 0',
+                    my_referral_code: userRandomCode,
+                    referral_link: generatedLink
+                };
+
+                // ربط المستثمر بالمُحيل المباشر إذا كان الكود صحيحاً وموجوداً
+                if (referrerUUID) {
+                    profileData.referred_by = referrerUUID;
+                }
+
+                // 5. إدراج البيانات الآمنة في جدول profiles
+                const { error: profileError } = await window.supabaseClient
+                    .from('profiles')
+                    .insert([profileData]);
+
+                if (profileError) throw profileError;
+
+                alert("تم إنشاء الحساب بنجاح! مرحباً بك في GOLD X.");
+                window.location.href = "dashboard.html";
+
+            } catch (err) {
+                alert("حدث خطأ: " + err.message);
+                btn.disabled = false;
+                btn.innerText = originalText;
             }
-        }
+        });
 
-        // 3. إنشاء كود إحالة خاص بالمستخدم الجديد
-        const userRandomCode = 'GX' + Math.floor(100000 + Math.random() * 900000);
-        const currentDomain = window.location.origin + window.location.pathname.replace('signup.html', '');
-        const generatedLink = `${currentDomain}signup.html?ref=${userRandomCode}`;
-
-        // 4. تجهيز بيانات الملف الشخصي
-        const profileData = {
-            id: data.user.id,
-            full_name: fullname,
-            balance: 0.00,
-            vip_level: 'VIP 0',
-            my_referral_code: userRandomCode,
-            referral_link: generatedLink
-        };
-
-        // إضافة معرّف المُحيل فقط إذا كان موجوداً وصحيحاً
-        if (referrerUUID) {
-            profileData.referred_by = referrerUUID;
-        }
-
-        // 5. حفظ البيانات في جدول profiles
-        const { error: profileError } = await window.supabaseClient
-            .from('profiles')
-            .insert([profileData]);
-
-        if (profileError) throw profileError;
-
-        alert("تم إنشاء الحساب بنجاح! مرحباً بك في GOLD X.");
-        window.location.href = "dashboard.html";
-
-    } catch (err) {
-        alert("حدث خطأ: " + err.message);
-        btn.disabled = false;
-        btn.innerText = originalText;
-    }
-});
-
-// تعبئة حقل الإحالة تلقائياً من الرابط إن وجد
-window.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const ref = urlParams.get('ref');
-    const referralInput = document.getElementById('referral-code');
-    if (ref && referralInput) {
-        referralInput.value = ref;
-        // جعل الحقل غير قابل للتعديل إذا جاء من رابط لمنع التلاعب
-        referralInput.readOnly = true; 
-        referralInput.classList.add('bg-gray-200', 'cursor-not-allowed');
-    }
-});
-</script>
+        // تعبئة حقل الإحالة تلقائياً من الرابط التسويقي إن وجد
+        window.addEventListener('DOMContentLoaded', () => {
+            const urlParams = new URLSearchParams(window.location.search);
+            const ref = urlParams.get('ref');
+            const referralInput = document.getElementById('referral-code');
+            if (ref && referralInput) {
+                referralInput.value = ref;
+                // حظر التعديل اليدوي لضمان نزاهة الإحالات
+                referralInput.readOnly = true; 
+                referralInput.classList.add('bg-gray-200', 'cursor-not-allowed', 'text-gray-500');
+            }
+        });
+    </script>
 </body>
 </html>
