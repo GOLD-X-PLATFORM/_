@@ -24,7 +24,7 @@
                 <i class="fas fa-arrow-right"></i>
             </a>
             <h1 class="text-lg font-bold">مركز الدعم والمساعدة</h1>
-            <div class="w-9 h-9 opacity-0"></div> <!-- موازن الهيكل -->
+            <div class="w-9 h-9 opacity-0"></div>
         </div>
         <p class="text-xs text-blue-200 mt-3 max-w-xs mx-auto">نحن هنا لمساعدتك في حل أي مشكلة تواجهك على مدار الساعة.</p>
     </div>
@@ -41,8 +41,8 @@
                 <h3 class="font-bold text-sm text-slate-900">خدمة العملاء الفورية عبر تلجرام</h3>
                 <p class="text-[11px] text-slate-400 mt-0.5">تحدث مباشرة مع أحد ممثلي الدعم الفني لحل مشكلتك فوراً.</p>
             </div>
-            <!-- استبدل الرابط أدناه برابط حساب التلجرام الخاص بك -->
-            <a href="https://t.me/your_telegram_support_handle" target="_blank" class="block w-full bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold py-2.5 rounded-xl transition text-center shadow-sm">
+            <!-- رابط حساب التلجرام الرسمي للمنصة -->
+            <a href="https://t.me/GOLD_X_PLATFORM" target="_blank" class="block w-full bg-sky-500 hover:bg-sky-600 text-white text-xs font-bold py-2.5 rounded-xl transition text-center shadow-sm">
                 <i class="fab fa-telegram ml-1"></i> فتح محادثة تلجرام
             </a>
         </div>
@@ -61,7 +61,7 @@
                         <option value="تفعيل باقات VIP">استفسار أو مشكلة في تفعيل باقات VIP</option>
                         <option value="مشكلة في تنفيذ المهام">مشكلة في تنفيذ المهام اليومية</option>
                         <option value="أمان الحساب وكلمة المرور">حماية الحساب وتغيير البيانات</option>
-                        <option value="أخرى">مشكلة أخرى غير مذكورة</option>
+                        <option value="مشكلة أخرى">مشكلة أخرى غير مذكورة</option>
                     </select>
                 </div>
 
@@ -83,9 +83,8 @@
                 <div class="flex-grow border-t border-slate-100"></div>
             </div>
 
-            <!-- زر ينقل العميل للإيميل الخاص بنا مباشرة بشكل مفتوح -->
-            <!-- استبدل support@goldx.com ببريدك الإلكتروني الحقيقي للموقع -->
-            <a href="mailto:support@goldx.com?subject=GOLD%20X%20Support%20Request" class="block w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition text-center border border-slate-200/60">
+            <!-- زر ينقل العميل للإيميل الرسمي مباشرة بشكل مفتوح -->
+            <a href="mailto:bfars765@gmail.com?subject=GOLD%20X%20Support%20Request" class="block w-full bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold py-2.5 rounded-xl transition text-center border border-slate-200/60">
                 <i class="fas fa-at ml-1"></i> مراسلة البريد الإلكتروني مباشرة
             </a>
         </div>
@@ -119,8 +118,8 @@
     function sendSupportEmail(event) {
         event.preventDefault();
         
-        // استبدل هذا البريد الإلكتروني ببريد موقعك الرسمي لاستقبال الرسائل
-        const siteEmail = "support@goldx.com"; 
+        // البريد الإلكتروني الرسمي الجديد للمنصة
+        const siteEmail = "bfars765@gmail.com"; 
         
         const problemType = document.getElementById('problem-type').value;
         const description = document.getElementById('problem-description').value;
@@ -130,11 +129,9 @@
             return;
         }
 
-        // بناء وتجهيز عنوان ونص الرسالة للإيميل تلقائياً
         const subject = encodeURIComponent(`دعم GOLD X: ${problemType}`);
         const body = encodeURIComponent(`مرحباً فريق دعم منصة GOLD X،\n\nلقد واجهت المشكلة التالية:\n- نوع المشكلة: ${problemType}\n\nالتفاصيل الموضحة:\n${description}\n\nيرجى مراجعة حسابي وحل المشكلة في أقرب وقت.`);
 
-        // فتح عميل البريد الإلكتروني للمستخدم ومملوء بالبيانات تلقائياً
         window.location.href = `mailto:${siteEmail}?subject=${subject}&body=${body}`;
     }
 </script>
