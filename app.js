@@ -32,7 +32,6 @@ async function getUserProfile() {
     }
 }
 
-
 // دالة تسجيل الخروج (تمت إضافتها لإصلاح العطل)
 async function logout() {
     await window.supabaseClient.auth.signOut();
