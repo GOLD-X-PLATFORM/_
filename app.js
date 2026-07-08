@@ -31,7 +31,7 @@ async function getUserProfile() {
         return null;
     }
 }
-}
+
 
 // دالة تسجيل الخروج (تمت إضافتها لإصلاح العطل)
 async function logout() {
