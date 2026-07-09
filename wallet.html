@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOLD X - المحفظة المالية المتكاملة</title>
+    <title>GOLD X - المحفظة المالية الذكية</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -12,6 +12,11 @@
             background: linear-gradient(135deg, #0b3c95 0%, #05245e 100%);
             border-bottom-left-radius: 2rem;
             border-bottom-right-radius: 2rem;
+        }
+        .strict-warning {
+            background-color: #fef2f2;
+            border: 2px dashed #ef4444;
+            color: #991b1b;
         }
     </style>
 </head>
@@ -22,7 +27,7 @@
             <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
                 <i class="fas fa-arrow-right"></i>
             </a>
-            <h1 class="text-lg font-bold">المحفظة المالية</h1>
+            <h1 class="text-lg font-bold">المحفظة الذكية</h1>
             <div class="w-9 h-9 bg-amber-500 rounded-full flex items-center justify-center text-slate-950 font-bold shadow">
                 <i class="fas fa-wallet"></i>
             </div>
@@ -31,12 +36,12 @@
         <div class="text-center mt-6 max-w-md mx-auto">
             <p class="text-blue-200 text-xs font-medium">إجمالي الرصيد القابل للاستخدام والسحب</p>
             <p class="text-3xl font-black text-white mt-1">$<span id="wallet-balance">0.00</span></p>
-            <p class="text-[10px] text-amber-400 mt-1"><i class="fas fa-shield-alt"></i> يتم تحديث المحفظة فورياً وبشكل متزامن مع حسابك الشخصي</p>
+            <p class="text-[10px] text-amber-400 mt-1"><i class="fas fa-shield-alt"></i> محفظة مؤمنة ومربوطة تلقائياً بالسيرفر الرئيسي</p>
         </div>
     </div>
 
     <div class="flex bg-slate-200/60 p-1 rounded-xl max-w-md mx-auto mt-4 px-4 gap-1">
-        <button id="btn-tab-deposit" onclick="switchSection('deposit')" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition">إيداع رصيد</button>
+        <button id="btn-tab-deposit" onclick="switchSection('deposit')" class="flex-1 py-2 text-xs font-bold rounded-lg bg-white text-slate-900 shadow-sm transition">إيداع رصيد آلي</button>
         <button id="btn-tab-withdraw" onclick="switchSection('withdraw')" class="flex-1 py-2 text-xs font-bold rounded-lg text-slate-500 hover:text-slate-900 transition">سحب الأرباح</button>
     </div>
 
@@ -44,61 +49,58 @@
         
         <div id="section-deposit" class="bg-white rounded-2xl shadow-xl p-5 border border-slate-100 text-right">
             <h3 class="font-bold text-slate-900 text-sm mb-2 flex items-center gap-1.5 justify-end">
-                إيداع رصيد تلقائي <i class="fas fa-arrow-alt-circle-down text-green-600"></i>
+                بوابة الشحن الفوري الآلية <i class="fas fa-bolt text-amber-500"></i>
             </h3>
-            
-            <div class="bg-red-50 border border-red-100 text-red-700 rounded-xl p-3 mb-4 text-xs flex items-start gap-2">
-                <i class="fas fa-exclamation-triangle mt-0.5 shrink-0"></i>
-                <p class="leading-relaxed">
-                    <strong>تحذير هام:</strong> تأكد من مطابقة نوع الشبكة المحددة في محفظتك المُرْسِلة. أي خطأ سيؤدي إلى خسارة أموالك بشكل دائم.
-                </p>
-            </div>
 
-            <div class="mb-4">
-                <label class="block text-xs font-bold text-slate-500 mb-1.5 mr-1">اختر شبكة الإيداع المفضلة لديك</label>
-                <select id="network-selector" onchange="toggleNetworkView()" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 focus:outline-none focus:border-[#0b3c95] focus:bg-white transition font-medium">
-                    <option value="bep20" selected>USDT (BEP20 - Binance Smart Chain)</option>
-                    <option value="erc20">USDT (ERC20 - Ethereum Network)</option>
-                </select>
-            </div>
-
-            <div id="network-display-container">
-                <div id="box-bep20" class="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-3">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[11px] font-black text-amber-600 uppercase"><i class="fab fa-binance"></i> شبكة BEP20</span>
-                        <span class="bg-amber-100 text-amber-800 text-[9px] font-bold px-2 py-0.5 rounded">رسوم منخفضة جداً</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl px-2 py-2">
-                        <button onclick="copyAddress('0xb56a89f790060cbb0f08d02234921e5fefff11a6')" class="text-xs bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-1.5 rounded-lg font-bold cursor-pointer transition active:scale-95">نسخ</button>
-                        <span class="text-xs font-mono text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap pr-1">0xb56a89f790060cbb0f08d02234921e5fefff11a6</span>
-                    </div>
-                </div>
-
-                <div id="box-erc20" class="bg-slate-50 border border-slate-100 rounded-xl p-4 space-y-3 hidden">
-                    <div class="flex justify-between items-center">
-                        <span class="text-[11px] font-black text-blue-600 uppercase"><i class="fab fa-ethereum"></i> شبكة ERC20</span>
-                        <span class="bg-blue-100 text-blue-800 text-[9px] font-bold px-2 py-0.5 rounded">شبكة إيثريوم</span>
-                    </div>
-                    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl px-2 py-2">
-                        <button onclick="copyAddress('0xb56a89f790060cbb0f08d02234921e5fefff11a6')" class="text-xs bg-[#0b3c95] hover:bg-[#05245e] text-white px-3 py-1.5 rounded-lg font-bold cursor-pointer transition active:scale-95">نسخ</button>
-                        <span class="text-xs font-mono text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap pr-1">0xb56a89f790060cbb0f08d02234921e5fefff11a6</span>
-                    </div>
-                </div>
-            </div>
-
-            <form id="deposit-verify-form" onsubmit="handleDepositSubmit(event)" class="mt-4 pt-4 border-t border-slate-100 space-y-3">
+            <form id="deposit-initial-form" onsubmit="generateInvoice(event)" class="space-y-3">
                 <div>
-                    <label class="block text-[11px] font-bold text-slate-500 mb-1">المبلغ المودع (USDT)</label>
-                    <input type="number" id="deposit-amount" required min="1" step="0.01" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs text-slate-700 focus:outline-none focus:bg-white text-left" placeholder="0.00">
+                    <label class="block text-xs font-bold text-slate-500 mb-1 mr-1">المبلغ الأساسي المطلوب شحنه (USDT)</label>
+                    <input type="number" id="deposit-amount" required min="5" step="1" class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-3 text-sm text-slate-800 font-bold focus:outline-none focus:border-[#0b3c95] focus:bg-white text-left" placeholder="مثال: 50">
                 </div>
-                <div>
-                    <label class="block text-[11px] font-bold text-slate-500 mb-1">أدخل هاش المعاملة / معرّف الحوالة الرقمية (TxID)</label>
-                    <input type="text" id="tx-hash" required class="w-full bg-slate-50 border border-slate-200 rounded-xl px-4 py-2.5 text-xs font-mono text-slate-700 focus:outline-none focus:bg-white text-left" placeholder="لصق الـ Hash هنا">
-                </div>
-                <button type="submit" id="btn-deposit-submit" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">
-                    تقديم طلب التحقق وإيداع الرصيد
+                <button type="submit" class="w-full bg-blue-600 hover:bg-blue-700 text-white font-bold py-3 rounded-xl text-xs transition cursor-pointer shadow-md">
+                    إنشاء فاتورة الدفع الرقمية المخصصة
                 </button>
             </form>
+
+            <div id="invoice-box" class="hidden space-y-4 pt-2">
+                
+                <div class="strict-warning rounded-xl p-3.5 text-xs font-bold flex items-start gap-2.5 leading-relaxed">
+                    <i class="fas fa-exclamation-circle text-lg shrink-0 mt-0.5 animate-pulse"></i>
+                    <p>تنبيه صارم: قم بتحويل المبلغ هذا بالضبط بدون زيادة او نقصان لكي يتم تأكيد عمليتك بنجاح من خلال النظام الآلي للشبكة.</p>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 text-center space-y-1.5 relative overflow-hidden">
+                    <span class="text-[10px] uppercase tracking-wider font-bold text-slate-400 block">المبلغ المطلوب تحويله بالدقة</span>
+                    <div class="flex items-center justify-center gap-2">
+                        <span id="display-exact-amount" class="text-2xl font-black text-slate-900 font-mono">0.0000</span>
+                        <span class="text-xs font-black text-slate-600">USDT</span>
+                    </div>
+                    <button onclick="copyToClipboard('display-exact-amount', 'المبلغ الدقيق')" class="inline-flex items-center gap-1 bg-amber-500 hover:bg-amber-600 text-slate-950 px-3 py-1 rounded-lg text-[11px] font-bold cursor-pointer transition active:scale-95">
+                        <i class="fas fa-copy"></i> نسخ المبلغ بالضبط
+                    </button>
+                </div>
+
+                <div class="bg-slate-50 border border-slate-100 rounded-xl p-4 text-right space-y-2">
+                    <div class="flex justify-between items-center">
+                        <span class="text-xs font-mono text-emerald-600 font-bold"><i class="fab fa-binance"></i> الشبكة: USDT (BEP20)</span>
+                        <span id="countdown-timer" class="bg-rose-100 text-rose-700 font-mono text-xs font-bold px-2 py-0.5 rounded flex items-center gap-1">15:00</span>
+                    </div>
+                    <div class="flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-xl px-2 py-2">
+                        <button onclick="copyToClipboard('wallet-address-target', 'عنوان المحفظة')" class="text-xs bg-[#0b3c95] hover:bg-[#05245e] text-white px-3 py-1.5 rounded-lg font-bold cursor-pointer transition">نسخ</button>
+                        <span id="wallet-address-target" class="text-xs font-mono text-slate-600 overflow-hidden text-ellipsis whitespace-nowrap pr-1">0xb56a89f790060cbb0f08d02234921e5fefff11a6</span>
+                    </div>
+                </div>
+
+                <div class="flex gap-2">
+                    <button onclick="cancelInvoice()" class="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold py-2.5 rounded-xl text-xs transition cursor-pointer">
+                        إلغاء الفاتورة
+                    </button>
+                    <button id="btn-confirm-deposit" onclick="confirmMicroDeposit()" class="flex-[2] bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-2.5 rounded-xl text-xs transition cursor-pointer shadow">
+                        لقد قمت بالتحويل، تأكيد العملية
+                    </button>
+                </div>
+            </div>
+
         </div>
 
         <div id="section-withdraw" class="bg-white rounded-2xl shadow-xl p-5 border border-slate-100 text-right hidden">
@@ -113,7 +115,6 @@
                         <option value="USDT (BEP20)">USDT (BEP20 Wallet)</option>
                         <option value="USDT (TRC20)">USDT (TRC20 Wallet)</option>
                         <option value="Vodafone Cash">فودافون كاش (مصر)</option>
-                        <option value="Local Wallet">محفظة إلكترونية محلية أخرى</option>
                     </select>
                 </div>
                 <div>
@@ -166,7 +167,8 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
-    // دالة التبديل بين قسمي الإيداع والسحب بالواجهة
+    let timerInterval = null;
+
     function switchSection(type) {
         const depSec = document.getElementById('section-deposit');
         const withSec = document.getElementById('section-withdraw');
@@ -186,15 +188,91 @@
         }
     }
 
-    function toggleNetworkView() {
-        const val = document.getElementById('network-selector').value;
-        document.getElementById('box-bep20').classList.toggle('hidden', val !== 'bep20');
-        document.getElementById('box-erc20').classList.toggle('hidden', val !== 'erc20');
+    function copyToClipboard(elementId, label) {
+        const text = document.getElementById(elementId).innerText;
+        navigator.clipboard.writeText(text);
+        alert(`تم نسخ ${label} بنجاح: ${text}`);
     }
 
-    function copyAddress(addr) {
-        navigator.clipboard.writeText(addr);
-        alert("تم نسخ العنوان الموحد بنجاح لتسهيل عملية التحويل.");
+    // توليد الفاتورة الذكية بالكسور العشوائية والعداد
+    function generateInvoice(e) {
+        e.preventDefault();
+        const baseAmount = parseFloat(document.getElementById('deposit-amount').value);
+        if (isNaN(baseAmount) || baseAmount < 5) {
+            alert("الحد الأدنى للإيداع هو 5 USDT");
+            return;
+        }
+
+        // توليد كسر عشوائي فريد ومميز بين 0.0001 و 0.0999
+        const randomFraction = (Math.random() * 0.0999 + 0.0001);
+        const exactAmount = (baseAmount + randomFraction).toFixed(4);
+
+        document.getElementById('display-exact-amount').innerText = exactAmount;
+        document.getElementById('deposit-initial-form').classList.add('hidden');
+        document.getElementById('invoice-box').classList.remove('hidden');
+
+        // إطلاق عداد تنازلي حماية للفاتورة (15 دقيقة)
+        startCountdown(15 * 60);
+    }
+
+    function startCountdown(duration) {
+        let timer = duration, minutes, seconds;
+        const display = document.getElementById('countdown-timer');
+        clearInterval(timerInterval);
+
+        timerInterval = setInterval(() => {
+            minutes = parseInt(timer / 60, 10);
+            seconds = parseInt(timer % 60, 10);
+
+            minutes = minutes < 10 ? "0" + minutes : minutes;
+            seconds = seconds < 10 ? "0" + seconds : seconds;
+
+            display.innerText = `${minutes}:${seconds}`;
+
+            if (--timer < 0) {
+                clearInterval(timerInterval);
+                alert("انتهت صلاحية الفاتورة الحالية! يرجى توليد كسر جديد لتجنب تداخل دفعاتك المالية.");
+                cancelInvoice();
+            }
+        }, 1000);
+    }
+
+    function cancelInvoice() {
+        clearInterval(timerInterval);
+        document.getElementById('invoice-box').classList.add('hidden');
+        document.getElementById('deposit-initial-form').classList.remove('hidden');
+    }
+
+    // تسجيل الفاتورة الذكية في النظام لحين رصدها بلوكشين
+    async function confirmMicroDeposit() {
+        const exactAmount = parseFloat(document.getElementById('display-exact-amount').innerText);
+        const btn = document.getElementById('btn-confirm-deposit');
+
+        btn.disabled = true;
+        btn.innerText = 'جاري جدولة معاملتك آلياً...';
+
+        try {
+            const profile = await getUserProfile();
+            if (!profile) return;
+
+            const { error } = await window.supabaseClient
+                .from('deposits')
+                .insert({ 
+                    user_id: profile.id, 
+                    amount: exactAmount, 
+                    txid: 'DYNAMIC_AUTO_CHECK', 
+                    status: 'pending' 
+                });
+
+            if (error) throw error;
+
+            alert("تم إشعار النظام! يرجى تحويل الكسر بالضبط الآن. سيقوم النظام بمطابقة واستلام الدفعة وضخها في حسابك تلقائياً.");
+            window.location.reload();
+        } catch (err) {
+            alert("خطأ: " + err.message);
+            btn.disabled = false;
+            btn.innerText = 'لقد قمت بالتحويل، تأكيد العملية';
+        }
     }
 
     // جلب وتحديث كامل بيانات الرصيد الحقيقي وكشوفات العمليات التاريخية
@@ -203,21 +281,11 @@
             const profile = await getUserProfile();
             if (!profile) return;
 
-            // تحديث قيم الواجهة بالرصيد القادم من الخادم مباشرة
             document.getElementById('wallet-balance').innerText = parseFloat(profile.balance).toFixed(2);
             const userId = profile.id;
 
-            // 1. جلب الإيداعات
-            const { data: deposits } = await window.supabaseClient
-                .from('deposits')
-                .select('*')
-                .eq('user_id', userId);
-
-            // 2. جلب السحوبات
-            const { data: withdrawals } = await window.supabaseClient
-                .from('withdrawals')
-                .select('*')
-                .eq('user_id', userId);
+            const { data: deposits } = await window.supabaseClient.from('deposits').select('*').eq('user_id', userId);
+            const { data: withdrawals } = await window.supabaseClient.from('withdrawals').select('*').eq('user_id', userId);
 
             const container = document.getElementById('transactions-log');
             container.innerHTML = '';
@@ -226,7 +294,6 @@
             if (deposits) deposits.forEach(d => timeline.push({...d, logType: 'deposit'}));
             if (withdrawals) withdrawals.forEach(w => timeline.push({...w, logType: 'withdraw'}));
 
-            // ترتيب تنازلي حسب الأحدث زمنياً
             timeline.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
             if (timeline.length === 0) {
@@ -244,8 +311,8 @@
                     container.innerHTML += `
                         <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <div>
-                                <span class="block text-xs font-bold text-emerald-600">+${parseFloat(item.amount).toFixed(2)} USDT (إيداع)</span>
-                                <span class="block text-[10px] text-slate-400 font-mono mt-0.5">Tx: ${item.txid.substring(0,10)}...</span>
+                                <span class="block text-xs font-bold text-emerald-600">+${parseFloat(item.amount).toFixed(4)} USDT</span>
+                                <span class="block text-[9px] text-slate-400 mt-0.5">بوابة الشحن الذكي الآلي</span>
                             </div>
                             <span class="text-[10px] font-bold ${statusColor} bg-white px-2 py-1 rounded shadow-sm">${statusText}</span>
                         </div>
@@ -255,7 +322,7 @@
                         <div class="flex justify-between items-center bg-slate-50 p-3 rounded-xl border border-slate-100">
                             <div>
                                 <span class="block text-xs font-bold text-rose-600">-${parseFloat(item.amount).toFixed(2)} USDT (سحب)</span>
-                                <span class="block text-[10px] text-slate-400 mt-0.5">عبر: ${item.method} (${item.address.substring(0,8)}...)</span>
+                                <span class="block text-[10px] text-slate-400 mt-0.5">عبر: ${item.method}</span>
                             </div>
                             <span class="text-[10px] font-bold ${statusColor} bg-white px-2 py-1 rounded shadow-sm">${statusText}</span>
                         </div>
@@ -267,7 +334,7 @@
         }
     }
 
-// معالجة وإرسال طلب السحب عبر الـ RPC الآمن لتخطي الحظر الأمني للمتصفح
+    // معالجة وإرسال طلب السحب عبر الـ RPC الآمن والمحمي لشرط الإحالتين والخطأ الأمني
     async function handleWithdrawSubmit(e) {
         e.preventDefault();
         const amount = parseFloat(document.getElementById('withdraw-amount').value);
@@ -276,10 +343,9 @@
         const btn = document.getElementById('btn-withdraw-submit');
 
         btn.disabled = true;
-        btn.innerText = 'جاري معالجة الطلب وأمان الرصيد...';
+        btn.innerText = 'جاري معالجة الشروط والأمان...';
 
         try {
-            // استدعاء الدالة الآمنة في السيرفر لمنع ثغرات المتصفح والخطأ الأمني
             const { data: success, error } = await window.supabaseClient.rpc('process_withdrawal', {
                 withdraw_amount: amount,
                 withdraw_method: method,
@@ -289,7 +355,7 @@
             if (error) throw error;
 
             if (success) {
-                alert("رائع! تم خصم الرصيد وتقديم طلب سحب الأرباح بنجاح وجاري مراجعته لإرساله لمحفظتك.");
+                alert("رائع! تم تجميد الرصيد وتقديم طلب سحب الأرباح بنجاح وجاري مراجعته لإرساله لمحفظتك.");
                 window.location.reload();
             } else {
                 alert("فشل تقديم الطلب: رصيد محفظتك المتاح حالياً أقل من المبلغ المراد سحبه!");
@@ -297,53 +363,7 @@
                 btn.innerText = 'تأكيد طلب السحب يدوياً';
             }
         } catch (err) {
-            alert("خطأ أمني في الخادم: " + err.message);
-            btn.disabled = false;
-            btn.innerText = 'تأكيد طلب السحب يدوياً';
-        }
-    }
-
-    // معالجة وإرسال طلب السحب مع حماية فحص الرصيد من جهة العميل بشكل استباقي
-    async function handleWithdrawSubmit(e) {
-        e.preventDefault();
-        const amount = parseFloat(document.getElementById('withdraw-amount').value);
-        const method = document.getElementById('withdraw-method').value;
-        const address = document.getElementById('withdraw-address').value;
-        const btn = document.getElementById('btn-withdraw-submit');
-
-        btn.disabled = true;
-        btn.innerText = 'جاري معالجة الطلب وأمان الرصيد...';
-
-        try {
-            const profile = await getUserProfile();
-            if (!profile) return;
-
-            if (profile.balance < amount) {
-                alert("فشل تقديم الطلب: رصيد محفظتك المتاح حالياً أقل من المبلغ المراد سحبه!");
-                btn.disabled = false;
-                btn.innerText = 'تأكيد طلب السحب يدوياً';
-                return;
-            }
-
-            // 1. تجميد الرصيد بسحبه فوراً من رصيد العميل لمنع الاحتيال أو السحب المزدوج
-            const { error: dedError } = await window.supabaseClient
-                .from('profiles')
-                .update({ balance: profile.balance - amount })
-                .eq('id', profile.id);
-
-            if (dedError) throw dedError;
-
-            // 2. إدراج المعاملة في جدول withdrawals
-            const { error: insError } = await window.supabaseClient
-                .from('withdrawals')
-                .insert({ user_id: profile.id, amount, method, address, status: 'pending' });
-
-            if (insError) throw insError;
-
-            alert("رائع! تم تجميد وتقديم طلب سحب الأرباح يدوياً بنجاح وجاري مراجعته لإرساله لمحفظتك.");
-            window.location.reload();
-        } catch (err) {
-            alert("خطأ: " + err.message);
+            alert(err.message);
             btn.disabled = false;
             btn.innerText = 'تأكيد طلب السحب يدوياً';
         }
