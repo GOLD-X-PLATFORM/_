@@ -267,32 +267,39 @@
         }
     }
 
-    // معالجة وإرسال طلب الإيداع للـ Admin للمراجعة والربط
-    async function handleDepositSubmit(e) {
+// معالجة وإرسال طلب السحب عبر الـ RPC الآمن لتخطي الحظر الأمني للمتصفح
+    async function handleWithdrawSubmit(e) {
         e.preventDefault();
-        const amount = parseFloat(document.getElementById('deposit-amount').value);
-        const txid = document.getElementById('tx-hash').value;
-        const btn = document.getElementById('btn-deposit-submit');
+        const amount = parseFloat(document.getElementById('withdraw-amount').value);
+        const method = document.getElementById('withdraw-method').value;
+        const address = document.getElementById('withdraw-address').value;
+        const btn = document.getElementById('btn-withdraw-submit');
 
         btn.disabled = true;
-        btn.innerText = 'جاري إرسال الطلب للخادم...';
+        btn.innerText = 'جاري معالجة الطلب وأمان الرصيد...';
 
         try {
-            const profile = await getUserProfile();
-            if (!profile) return;
-
-            const { error } = await window.supabaseClient
-                .from('deposits')
-                .insert({ user_id: profile.id, amount, txid, status: 'pending' });
+            // استدعاء الدالة الآمنة في السيرفر لمنع ثغرات المتصفح والخطأ الأمني
+            const { data: success, error } = await window.supabaseClient.rpc('process_withdrawal', {
+                withdraw_amount: amount,
+                withdraw_method: method,
+                withdraw_address: address
+            });
 
             if (error) throw error;
 
-            alert("تم إرسال إشعار الإيداع! سيتحقق النظام التلقائي من الهاش ويضيف القيمة لمحفظتك فوراً.");
-            window.location.reload();
+            if (success) {
+                alert("رائع! تم خصم الرصيد وتقديم طلب سحب الأرباح بنجاح وجاري مراجعته لإرساله لمحفظتك.");
+                window.location.reload();
+            } else {
+                alert("فشل تقديم الطلب: رصيد محفظتك المتاح حالياً أقل من المبلغ المراد سحبه!");
+                btn.disabled = false;
+                btn.innerText = 'تأكيد طلب السحب يدوياً';
+            }
         } catch (err) {
-            alert("خطأ: " + err.message);
+            alert("خطأ أمني في الخادم: " + err.message);
             btn.disabled = false;
-            btn.innerText = 'تقديم طلب التحقق وإيداع الرصيد';
+            btn.innerText = 'تأكيد طلب السحب يدوياً';
         }
     }
 
