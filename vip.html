@@ -206,38 +206,49 @@
             </a>
         </div>
     </div>
-
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
+    // دالة جلب وعرض بيانات الرصيد الحقيقي ومستوى باقتك الحالية
     async function checkCurrentVIP() {
-        const profile = await getUserProfile();
-        if (profile) {
-            document.getElementById('current-vip-tier').innerText = profile.vip_level;
-            document.getElementById('user-balance').innerText = parseFloat(profile.balance).toFixed(2) + " USDT";
+        try {
+            const profile = await getUserProfile();
+            if (profile) {
+                document.getElementById('current-vip-tier').innerText = profile.vip_level + " (نشطة)";
+                document.getElementById('user-balance').innerText = parseFloat(profile.balance).toFixed(2) + " USDT";
+            }
+        } catch (err) {
+            console.error("عطل أثناء تحديث واجهة باقات الحساب: ", err);
         }
     }
 
+    // دالة معالجة شراء الباقة عبر استدعاء الـ RPC الآمن والمحمي في السيفر
     async function purchasePlan(planName) {
-        if (!confirm(`هل أنت متأكد من رغبتك في تفعيل باقة ${planName}؟ سيتم خصم القيمة تلقائياً بناءً على تسعير الخادم.`)) return;
+        if (!confirm(`هل أنت متأكد من رغبتك في تفعيل خطة استثمار ${planName}؟ سيتم خصم القيمة المحددة لها تلقائياً من رصيد محفظتك المتاح.`)) return;
+        
         try {
+            // استدعاء دالة قاعدة البيانات الآمنة التي أنشأناها في الخطوة 1
             const { data: success, error } = await window.supabaseClient.rpc('purchase_vip_plan', {
                 plan_name: planName
             });
+            
             if (error) throw error;
 
             if (success) {
-                alert(`مبروك! تم تفعيل باقة ${planName} بنجاح.`);
+                alert(`تهانينا الحارة! تم تفعيل اشتراك ${planName} وفتح مهامها الاستثمارية اليومية لك فوراً.`);
                 window.location.reload();
             } else {
-                alert("فشل التفعيل: رصيدك الحالي غير كافٍ أو حدث خطأ في العملية.");
+                alert("فشل عملية الشراء: رصيدك الحالي غير كافٍ لتفعيل هذه الباقة. يرجى شحن المحفظة أولاً.");
             }
         } catch (err) {
-            alert("خطأ أمني: " + err.message);
+            alert("خطأ في الخادم أثناء الشراء: " + err.message);
         }
     }
 
-    window.addEventListener('DOMContentLoaded', checkCurrentVIP);
+    // بدء تشغيل الفحص وتغذية البيانات فور تحميل واجهة الباقات
+    window.addEventListener('DOMContentLoaded', () => {
+        checkCurrentVIP();
+    });
 </script>
-</body>
+
 </html>
