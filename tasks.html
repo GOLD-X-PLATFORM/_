@@ -66,13 +66,11 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
-    // دالة بناء وعرض المهام بناءً على باقات الـ VIP الثمانية الصحيحة
     async function renderNumberedTasks() {
         const container = document.getElementById('tasks-list');
         if (!container) return;
 
         try {
-            // 1. جلب بيانات العميل
             const profile = await getUserProfile();
             if (!profile) {
                 container.innerHTML = `
@@ -82,7 +80,6 @@
                 return;
             }
 
-            // 2. تطبيق الحسبة المالية الدقيقة والجديدة للخطط الثمانية (1%)
             let planPrice = 0;
             if (profile.vip_level === 'VIP 1') planPrice = 10.00;
             else if (profile.vip_level === 'VIP 2') planPrice = 20.00;
@@ -93,22 +90,23 @@
             else if (profile.vip_level === 'VIP 7') planPrice = 1000.00;
             else if (profile.vip_level === 'VIP 8') planPrice = 1500.00;
 
-            // حساب الـ 1% لكل مهمة على حدة بدقة وعرضها رقمياً
             const taskReward = (planPrice * 0.01).toFixed(2);
 
-            // 3. التحقق من المهام المكتملة لليوم
+            // 🟢 التعديل الجوهري: جلب توقيت اليوم بصيغة YYYY-MM-DD لفلترة تاريخ اليوم فقط
+            const todayStr = new Date().toISOString().split('T')[0];
+
             const { data: completedTasks, error: compError } = await window.supabaseClient
                 .from('user_tasks')
                 .select('task_id')
-                .eq('user_id', profile.id);
+                .eq('user_id', profile.id)
+                .gte('created_at', todayStr); // جلب المهام المكتملة ابتداءً من تاريخ اليوم فقط
 
             if (compError) throw compError;
 
             const completedIds = completedTasks ? completedTasks.map(c => c.task_id) : [];
 
-            container.innerHTML = ''; // تصفير مؤشر التحميل
+            container.innerHTML = ''; 
 
-            // 4. بناء الـ 4 مهام اليومية بدون تعديل التنسيق الهيكلي الجمالي للبطاقات
             for (let i = 1; i <= 4; i++) {
                 const isDone = completedIds.includes(i);
                 
@@ -146,7 +144,6 @@
         }
     }
 
-    // دالة إرسال طلب المعاملة للسيرفر
     async function executeTask(e, taskId) {
         const btn = e.target;
         btn.disabled = true;
