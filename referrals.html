@@ -134,36 +134,26 @@
                 });
             });
         }
+try {
+    // استدعاء الدالة السريعة من السيرفر مباشرة
+    const { data, error } = await window.supabaseClient.rpc('get_team_counts_v2', {
+        user_uuid: profile.id
+    });
 
-        try {
-            // المستوى الأول: جلب المستخدمين الذين يحملون الـ UUID الخاص بالمستخدم الحالي في خانة referred_by
-            const { data: lvl1, error: e1 } = await window.supabaseClient.from('profiles').select('id, full_name, created_at').eq('referred_by', profile.id);
-            if (e1) throw e1;
-            document.getElementById('lvl1-count').innerText = lvl1.length;
+    if (error) throw error;
 
-            let lvl2Count = 0;
-            let lvl3Count = 0;
-
-            if (lvl1.length > 0) {
-                const lvl1Ids = lvl1.map(u => u.id);
-
-                // المستوى الثاني: جلب المستخدمين المحالين بواسطة أفراد المستوى الأول
-                const { data: lvl2, error: e2 } = await window.supabaseClient.from('profiles').select('id').in('referred_by', lvl1Ids);
-                if (!e2 && lvl2) {
-                    lvl2Count = lvl2.length;
-                    document.getElementById('lvl2-count').innerText = lvl2Count;
-
-                    if (lvl2.length > 0) {
-                        const lvl2Ids = lvl2.map(u => u.id);
-                        // المستوى الثالث: جلب المستخدمين المحالين بواسطة أفراد المستوى الثاني
-                        const { data: lvl3, error: e3 } = await window.supabaseClient.from('profiles').select('id').in('referred_by', lvl2Ids);
-                        if (!e3 && lvl3) {
-                            lvl3Count = lvl3.length;
-                            document.getElementById('lvl3-count').innerText = lvl3Count;
-                        }
-                    }
-                }
-            }
+    if (data && data.length > 0) {
+        document.getElementById('lvl1-count').innerText = data[0].lvl1 || 0;
+        document.getElementById('lvl2-count').innerText = data[0].lvl2 || 0;
+        document.getElementById('lvl3-count').innerText = data[0].lvl3 || 0;
+    }
+} catch (err) {
+    console.error("خطأ في جلب أعداد الفريق:", err.message);
+}
+                        
+                    
+                
+            
         } catch (err) {
             console.error("خطأ في معالجة شجرة الإحالات الهرمية:", err.message);
         }
