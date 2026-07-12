@@ -112,7 +112,7 @@
             </button>
         </div>
     </div>
-    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
     async function buildReferralTree() {
@@ -134,28 +134,22 @@
                 });
             });
         }
-try {
-    // استدعاء الدالة السريعة من السيرفر مباشرة
-    const { data, error } = await window.supabaseClient.rpc('get_team_counts_v2', {
-        user_uuid: profile.id
-    });
 
-    if (error) throw error;
+        try {
+            // استدعاء الدالة السريعة من السيرفر مباشرة
+            const { data, error } = await window.supabaseClient.rpc('get_team_counts_v2', {
+                user_uuid: profile.id
+            });
 
-    if (data && data.length > 0) {
-        document.getElementById('lvl1-count').innerText = data[0].lvl1 || 0;
-        document.getElementById('lvl2-count').innerText = data[0].lvl2 || 0;
-        document.getElementById('lvl3-count').innerText = data[0].lvl3 || 0;
-    }
-} catch (err) {
-    console.error("خطأ في جلب أعداد الفريق:", err.message);
-}
-                        
-                    
-                
-            
+            if (error) throw error;
+
+            if (data && data.length > 0) {
+                document.getElementById('lvl1-count').innerText = data[0].lvl1 || 0;
+                document.getElementById('lvl2-count').innerText = data[0].lvl2 || 0;
+                document.getElementById('lvl3-count').innerText = data[0].lvl3 || 0;
+            }
         } catch (err) {
-            console.error("خطأ في معالجة شجرة الإحالات الهرمية:", err.message);
+            console.error("خطأ في جلب أعداد الفريق:", err.message);
         }
     }
 
