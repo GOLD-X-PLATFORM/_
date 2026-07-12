@@ -112,7 +112,7 @@
             </button>
         </div>
     </div>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
     async function buildReferralTree() {
@@ -134,9 +134,6 @@
                 });
             });
         }
-        
-        // ... (باقي كود الهرمية كما هو) ...
-    
 
         try {
             // المستوى الأول: جلب المستخدمين الذين يحملون الـ UUID الخاص بالمستخدم الحالي في خانة referred_by
@@ -174,5 +171,5 @@
 
     window.addEventListener('DOMContentLoaded', buildReferralTree);
 </script>
- </body>
+</body>
 </html>
