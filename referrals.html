@@ -136,7 +136,7 @@
         }
 
         try {
-            // استدعاء الدالة السريعة من السيرفر مباشرة
+            // استدعاء الدالة من السيرفر مباشرة
             const { data, error } = await window.supabaseClient.rpc('get_team_counts_v2', {
                 user_uuid: profile.id
             });
@@ -149,7 +149,8 @@
                 document.getElementById('lvl3-count').innerText = data[0].lvl3 || 0;
             }
         } catch (err) {
-            console.error("خطأ في جلب أعداد الفريق:", err.message);
+            console.error("خطأ في جلب أعداد الفريق من السيرفر:", err.message);
+            alert("حدث خطأ أثناء جلب أعداد الفريق: " + err.message);
         }
     }
 
