@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>GOLD X - المهام اليومية</title>
+    <title>GOLD X - التداول والمهام اليومية</title>
     <script src="https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
@@ -13,34 +13,140 @@
             border-bottom-left-radius: 2rem;
             border-bottom-right-radius: 2rem;
         }
+        
+        /* تأثيرات حركة الشموع اليابانية التفاعلية */
+        @keyframes candleBounce1 {
+            0%, 100% { height: 45px; }
+            50% { height: 60px; }
+        }
+        @keyframes candleBounce2 {
+            0%, 100% { height: 70px; }
+            50% { height: 50px; }
+        }
+        @keyframes candleBounce3 {
+            0%, 100% { height: 35px; }
+            50% { height: 65px; }
+        }
+        .animate-candle-1 { animation: candleBounce1 1.8s ease-in-out infinite; }
+        .animate-candle-2 { animation: candleBounce2 2.2s ease-in-out infinite; }
+        .animate-candle-3 { animation: candleBounce3 1.5s ease-in-out infinite; }
+
+        /* تأثير الرسم البياني الخطي المتصل */
+        @keyframes drawLine {
+            to { stroke-dashoffset: 0; }
+        }
+        .animate-chart-line {
+            stroke-dasharray: 1000;
+            stroke-dashoffset: 1000;
+            animation: drawLine 4s linear infinite;
+        }
     </style>
 </head>
 <body class="text-slate-800 font-sans antialiased min-h-screen pb-24">
 
+    <!-- الجزء العلوي للصفحة -->
     <div class="header-bg text-white px-6 pt-6 pb-14 shadow-lg text-center relative">
         <div class="flex justify-between items-center max-w-md mx-auto">
             <a href="dashboard.html" class="text-xl p-2 hover:bg-white/10 rounded-full transition cursor-pointer">
                 <i class="fas fa-arrow-right"></i>
             </a>
-            <h1 class="text-lg font-bold">المهام اليومية</h1>
+            <h1 class="text-lg font-bold">روبوت التداول اليومي</h1>
             <div class="w-9 h-9 bg-amber-500 rounded-full flex items-center justify-center text-slate-950 font-bold shadow">
-                <i class="fas fa-tasks"></i>
+                <i class="fas fa-robot"></i>
             </div>
         </div>
         <div class="max-w-md mx-auto mt-4">
-            <p class="text-blue-200 text-xs font-medium">أكمل المهام اليومية للحصول على عائد 1% من قيمة اشتراكك</p>
+            <p class="text-blue-200 text-xs font-medium">قم بتفعيل عمليات الروبوت لحصد الأرباح الموزعة من صفقات اليوم</p>
         </div>
     </div>
 
+    <!-- قائمة المهام (الصفقات اليومية للروبوت) -->
     <div class="px-4 mt-6 max-w-md mx-auto">
         <div id="tasks-list" class="space-y-3.5">
             <div class="text-center py-12 bg-white rounded-2xl shadow-sm border border-slate-100">
                 <i class="fas fa-circle-notch animate-spin text-2xl text-[#0b3c95] mb-2 block"></i>
-                <p class="text-xs text-slate-400 font-medium">جاري فحص حالة المهام اليومية...</p>
+                <p class="text-xs text-slate-400 font-medium">جاري فحص حالة صفقات التداول الآلي اليومية...</p>
             </div>
         </div>
     </div>
 
+    <!-- 🤖 نافذة الروبوت والشموع اليابانية التفاعلية (Modal) -->
+    <div id="trading-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden opacity-0 transition-opacity duration-300">
+        <div class="bg-slate-900 text-white rounded-3xl p-6 max-w-sm w-full border border-slate-800 shadow-2xl text-center space-y-5 transform scale-95 transition-all duration-300">
+            
+            <!-- رأس النافذة مع الروبوت النابض -->
+            <div class="relative w-20 h-20 mx-auto flex items-center justify-center bg-blue-600/10 rounded-full border border-blue-500/30">
+                <div class="absolute inset-0 rounded-full bg-blue-500/20 animate-ping"></div>
+                <i class="fas fa-robot text-3xl text-blue-400"></i>
+            </div>
+
+            <!-- الوصف والنصوص المطلوبة -->
+            <div>
+                <h3 class="text-sm font-black text-slate-100 leading-relaxed">روبوت التداول الالي المرتبط بمحفظتك يعمل حاليا</h3>
+                <p class="text-[11px] text-emerald-400 font-medium mt-1.5 flex items-center justify-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span> جاري فحص اتجاهات السوق وحصد الأرباح...
+                </p>
+            </div>
+
+            <!-- 📊 نافذة الرسم البياني والشموع اليابانية المتحركة -->
+            <div class="h-32 bg-slate-950 rounded-2xl border border-slate-800/80 p-4 flex items-end justify-between gap-1 overflow-hidden relative">
+                <!-- شبكة خلفية محاكية للمنصات -->
+                <div class="absolute inset-0 bg-[radial-gradient(#ffffff03_1px,transparent_1px)] [background-size:12px_12px]"></div>
+                
+                <!-- رسم بياني خطي متحرك (SVG Line) -->
+                <svg class="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                    <path d="M -10,85 Q 15,30 35,70 T 75,20 T 110,40" fill="none" stroke="#2563eb" stroke-width="2" class="animate-chart-line" />
+                </svg>
+
+                <!-- شمعة يابانية 1 (هبوط حمراء) -->
+                <div class="flex flex-col items-center justify-end h-full w-8 z-10">
+                    <div class="w-[1.5px] h-3 bg-rose-500"></div>
+                    <div class="w-3 bg-rose-500/80 rounded-[1px] animate-candle-1" style="height: 45px;"></div>
+                    <div class="w-[1.5px] h-4 bg-rose-500"></div>
+                </div>
+
+                <!-- شمعة يابانية 2 (صعود خضراء) -->
+                <div class="flex flex-col items-center justify-end h-full w-8 z-10">
+                    <div class="w-[1.5px] h-4 bg-emerald-500"></div>
+                    <div class="w-3 bg-emerald-500/80 rounded-[1px] animate-candle-2" style="height: 70px;"></div>
+                    <div class="w-[1.5px] h-3 bg-emerald-500"></div>
+                </div>
+
+                <!-- شمعة يابانية 3 (هبوط حمراء) -->
+                <div class="flex flex-col items-center justify-end h-full w-8 z-10">
+                    <div class="w-[1.5px] h-2 bg-rose-500"></div>
+                    <div class="w-3 bg-rose-500/80 rounded-[1px] animate-candle-3" style="height: 35px;"></div>
+                    <div class="w-[1.5px] h-5 bg-rose-500"></div>
+                </div>
+
+                <!-- شمعة يابانية 4 (صعود خضراء) -->
+                <div class="flex flex-col items-center justify-end h-full w-8 z-10">
+                    <div class="w-[1.5px] h-5 bg-emerald-500"></div>
+                    <div class="w-3 bg-emerald-500/80 rounded-[1px] animate-candle-1" style="height: 60px;"></div>
+                    <div class="w-[1.5px] h-2 bg-emerald-500"></div>
+                </div>
+
+                <!-- شمعة يابانية 5 (صعود خضراء قوية) -->
+                <div class="flex flex-col items-center justify-end h-full w-8 z-10">
+                    <div class="w-[1.5px] h-3 bg-emerald-500"></div>
+                    <div class="w-3 bg-emerald-500/90 rounded-[1px] animate-candle-2" style="height: 80px;"></div>
+                    <div class="w-[1.5px] h-4 bg-emerald-500"></div>
+                </div>
+            </div>
+
+            <!-- سجل تحركات الروبوت اللحظي -->
+            <div id="modal-log" class="text-[10px] text-slate-400 h-5 overflow-hidden">
+                جاري تهيئة الاتصال بالبلوكشين...
+            </div>
+
+            <!-- شريط التحميل وحساب النسبة -->
+            <div class="w-full bg-slate-800 h-1.5 rounded-full overflow-hidden">
+                <div id="modal-progress" class="bg-blue-500 h-full w-0 transition-all duration-300 ease-out"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- شريط التنقل السفلي -->
     <div class="fixed bottom-0 left-0 right-0 bg-white border-t border-slate-100 py-2 shadow-2xl z-50">
         <div class="max-w-md mx-auto grid grid-cols-5 text-center items-center">
             <a href="logs.html" class="text-slate-400 hover:text-blue-600 flex flex-col items-center gap-1 cursor-pointer">
@@ -66,6 +172,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="app.js"></script>
 <script>
+    // جلب وعرض الصفقات بشكل متناسب مع باقة المستخدم
     async function renderNumberedTasks() {
         const container = document.getElementById('tasks-list');
         if (!container) return;
@@ -91,15 +198,13 @@
             else if (profile.vip_level === 'VIP 8') planPrice = 1500.00;
 
             const taskReward = (planPrice * 0.01).toFixed(2);
-
-            // 🟢 التعديل الجوهري: جلب توقيت اليوم بصيغة YYYY-MM-DD لفلترة تاريخ اليوم فقط
             const todayStr = new Date().toISOString().split('T')[0];
 
             const { data: completedTasks, error: compError } = await window.supabaseClient
                 .from('user_tasks')
                 .select('task_id')
                 .eq('user_id', profile.id)
-                .gte('created_at', todayStr); // جلب المهام المكتملة ابتداءً من تاريخ اليوم فقط
+                .gte('created_at', todayStr);
 
             if (compError) throw compError;
 
@@ -110,23 +215,24 @@
             for (let i = 1; i <= 4; i++) {
                 const isDone = completedIds.includes(i);
                 
+                // تعديل مسميات الأزرار والواجهة مع الاحتفاظ بالبيانات البرمجية كما هي
                 const buttonHTML = isDone 
                     ? `<button class="w-full bg-slate-100 text-slate-400 font-bold text-xs py-2.5 px-4 rounded-xl cursor-not-allowed flex items-center justify-center gap-1" disabled>
-                        <i class="fas fa-check-circle text-emerald-500"></i> تم الإتمام بنجاح
+                        <i class="fas fa-check-circle text-emerald-500"></i> تم جمع الأرباح بنجاح
                        </button>` 
                     : `<button class="w-full bg-amber-500 hover:bg-amber-600 text-slate-950 font-black text-xs py-2.5 px-4 rounded-xl shadow-sm transition transform active:scale-95 cursor-pointer" onclick="executeTask(event, ${i})">
-                        أكمل المهمة (+${taskReward} USDT)
+                        جمع ارباح التداول الالي اليومية (+${taskReward} USDT)
                        </button>`;
 
                 container.innerHTML += `
                     <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-100 flex flex-col justify-between items-start gap-4 text-right">
                         <div class="flex items-start gap-3 w-full">
                             <div class="w-10 h-10 bg-blue-50 text-blue-600 rounded-xl flex items-center justify-center text-base shrink-0 border border-blue-100/50">
-                                <i class="fas fa-star text-amber-500"></i>
+                                <i class="fas fa-chart-line text-blue-600"></i>
                             </div>
                             <div class="space-y-0.5">
-                                <h4 class="font-bold text-sm text-slate-900">مهمة رقم ${i} لليوم</h4>
-                                <p class="text-xs text-slate-400 leading-relaxed font-normal">قم بالنقر على زر أكمل لتأكيد معالجة البيانات وضخ أرباحك اليومية لحسابك.</p>
+                                <h4 class="font-bold text-sm text-slate-900">صفقة التداول الآلي اليومية #${i}</h4>
+                                <p class="text-xs text-slate-400 leading-relaxed font-normal">اضغط على الزر أدناه لتأكيد ترحيل أرباح هذه الصفقة اليومية وحقنها في محفظتك المباشرة.</p>
                             </div>
                         </div>
                         <div class="w-full border-t border-slate-50 pt-3">
@@ -144,31 +250,87 @@
         }
     }
 
+    // دالة تنفيذ العملية مع تأثير الروبوت التفاعلي والشموع اليابانية
     async function executeTask(e, taskId) {
+        if (window.isTradingActive) return;
+        window.isTradingActive = true;
+
         const btn = e.target;
-        btn.disabled = true;
-        const originalText = btn.innerText;
-        btn.innerText = 'جاري التحقق وقيد معالجة الأرباح...';
+        const originalHTML = btn.innerHTML;
+        
+        // جلب عناصر النافذة المنبثقة
+        const modal = document.getElementById('trading-modal');
+        const progressBar = document.getElementById('modal-progress');
+        const modalLog = document.getElementById('modal-log');
 
-        try {
-            const { data: success, error } = await window.supabaseClient.rpc('complete_user_task', {
-                target_task_id: taskId
-            });
+        // إظهار النافذة المنبثقة بحركة سلاسة
+        modal.classList.remove('hidden');
+        setTimeout(() => {
+            modal.classList.remove('opacity-0');
+            modal.querySelector('.bg-slate-900').classList.remove('scale-95');
+        }, 10);
 
-            if (error) throw error;
+        // حالات التحليل الوهمية التي يمر بها الروبوت لزيادة الحماس والتفاعل
+        const tradingStages = [
+            "جاري موازنة اتصال API بالشبكة المحمية...",
+            "تحليل حركة الشموع اليابانية الحالية في زوج العملات...",
+            "تطبيق نظام الذكاء الاصطناعي لتأكيد العائد الفني...",
+            "نجاح الصفقة! جاري معالجة وتثبيت الأرباح على السيرفر..."
+        ];
 
-            if (success) {
-                alert("ممتاز! تم تنفيذ المهمة بنجاح وإضافة عائد الـ 1% إلى محفظتك الاستثمارية.");
-                window.location.reload();
-            } else {
-                alert("تنبيه: يبدو أنك أكملت هذه المهمة المرقمة بالفعل لهذا اليوم!");
-                btn.disabled = false;
-                btn.innerText = originalText;
+        let progress = 0;
+        let stageIndex = 0;
+
+        const progressInterval = setInterval(() => {
+            progress += 4;
+            if (progress <= 100) {
+                progressBar.style.width = `${progress}%`;
             }
-        } catch (err) {
-            alert("فشل تأكيد العملية من السيرفر: " + err.message);
-            btn.disabled = false;
-            btn.innerText = originalText;
+            if (progress % 25 === 0 && stageIndex < tradingStages.length) {
+                modalLog.innerText = tradingStages[stageIndex];
+                stageIndex++;
+            }
+        }, 120);
+
+        // تأخير بسيط للمحاكاة البصرية قبل إصدار استدعاء قاعدة البيانات الآمن
+        setTimeout(async () => {
+            try {
+                const { data: success, error } = await window.supabaseClient.rpc('complete_user_task', {
+                    target_task_id: taskId
+                });
+
+                clearInterval(progressInterval);
+
+                if (error) throw error;
+
+                if (success) {
+                    progressBar.style.width = '100%';
+                    modalLog.innerHTML = `<span class="text-emerald-400 font-black"><i class="fas fa-check-circle"></i> تم إيداع أرباح الصفقة بمحفظتك بنجاح!</span>`;
+                    
+                    setTimeout(() => {
+                        window.location.reload();
+                    }, 1500);
+                } else {
+                    alert("تنبيه: لقد قمت بحصد أرباح هذه الصفقة اليومية بالفعل!");
+                    closeTradingModal();
+                }
+            } catch (err) {
+                clearInterval(progressInterval);
+                alert("تعذر تأكيد الصفقة من خادم التداول: " + err.message);
+                closeTradingModal();
+            }
+        }, 3200);
+
+        // إغلاق النافذة والعودة للحالة الطبيعية عند الإلغاء أو الخطأ
+        function closeTradingModal() {
+            modal.classList.add('opacity-0');
+            modal.querySelector('.bg-slate-900').classList.add('scale-95');
+            setTimeout(() => {
+                modal.classList.add('hidden');
+                window.isTradingActive = false;
+                btn.disabled = false;
+                btn.innerHTML = originalHTML;
+            }, 300);
         }
     }
 
