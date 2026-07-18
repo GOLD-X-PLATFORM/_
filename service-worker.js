@@ -1,18 +1,21 @@
-const CACHE_NAME = 'goldx-cache-v1';
-// قائمة الملفات والمكتبات الخارجية التي سيتم حفظها لضمان سرعة التطبيق الفائقة
+const CACHE_NAME = 'goldx-cache-v2';
+
+// تم تعديل المسارات إلى نسبية وإضافة ملفات الهوية لضمان عمل الـ PWA بنجاح
 const ASSETS_TO_CACHE = [
-  '/dashboard.html',
-  '/tasks.html',
-  '/profile.html',
-  '/logs.html',
-  '/support.html',
-  '/app.js',
+  'dashboard.html',
+  'tasks.html',
+  'profile.html',
+  'logs.html',
+  'support.html',
+  'app.js',
+  'manifest.json',
+  'icon-192x192.png',
+  'icon-512x512.png',
   'https://cdn.jsdelivr.net/npm/@tailwindcss/browser@4',
   'https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css',
   'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2'
 ];
 
-// تفعيل وتثبيت السيرفس وركر وحفظ الملفات الأساسية
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME).then((cache) => {
@@ -21,7 +24,6 @@ self.addEventListener('install', (event) => {
   );
 });
 
-// إدارة الطلبات وتقديم الملفات المخزنة لتسريع التصفح عند ضعف الإنترنت
 self.addEventListener('fetch', (event) => {
   event.respondWith(
     caches.match(event.request).then((cachedResponse) => {
