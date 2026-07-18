@@ -375,7 +375,7 @@
     <script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
+      navigator.serviceWorker.register('service-worker.js')
         .then((reg) => console.log('GOLD X PWA Active!', reg.scope))
         .catch((err) => console.log('PWA Register Failed:', err));
     });
