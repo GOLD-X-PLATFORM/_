@@ -204,10 +204,11 @@
         loadDashboardData();
     });
 </script>
-    <script>
+<script>
   if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
-      navigator.serviceWorker.register('/service-worker.js')
+      // تم حذف السلاش قبل اسم الملف ليعمل داخل التطبيق المغلّف والمثبت
+      navigator.serviceWorker.register('service-worker.js')
         .then((reg) => console.log('GOLD X PWA Active!', reg.scope))
         .catch((err) => console.log('PWA Register Failed:', err));
     });
